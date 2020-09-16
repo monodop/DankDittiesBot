@@ -1,0 +1,234 @@
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace DankDitties
+{
+    class Program
+    {
+        private static HttpClient _client = new HttpClient();
+
+        private static string[] _domainAllowList = new string[] {
+            "youtube.com",
+            "youtu.be",
+            "soundcloud.com",
+        };
+        private static Secrets _secrets;
+        private static MetadataManager _metadataManager;
+        private static string _audioDir = "audio";
+
+        public static async Task Main(string[] args)
+        {
+            var cts = new CancellationTokenSource();
+
+            var workingDirectory = args.Length > 0 ? args[0] : "D:/Harrison/Documents/git/DankDitties";
+            Directory.SetCurrentDirectory(workingDirectory);
+
+            _secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
+
+            using var metadataManager = new MetadataManager("metadata.json");
+            _metadataManager = metadataManager;
+
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(() => _autoPopulate(cts.Token));
+            Task.Run(() => _autoPrefetch(cts.Token));
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            var client = new DiscordClient(_secrets.DiscordApiKey, _metadataManager);
+            await client.StartAsync();
+
+            Console.CancelKeyPress += (o, e) => cts.Cancel();
+
+            cts.Token.WaitHandle.WaitOne();
+        }
+
+        private static async Task _autoPopulate(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Yield();
+                    await _populateBasicRedditInfo();
+                    await _populateUpdatedRedditInfo(cancellationToken);
+                    await Task.Delay(TimeSpan.FromHours(6));
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task _autoPrefetch(CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Yield();
+                    await _prefetchMp3(cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            }
+        }
+
+        private static async Task _populateBasicRedditInfo()
+        {
+            string offset = null;
+            var maxResults = 10000;
+            var pageSize = 100;
+
+            var totalResults = 0;
+            var prevResults = 1;
+
+            while (totalResults < maxResults && prevResults > 0)
+            {
+                await Task.Yield();
+                prevResults = 0;
+
+                var url = "https://api.pushshift.io/reddit/search/submission/"
+                    + "?subreddit=dankditties&sort=desc&sort_type=created_utc"
+                    + "&size=" + pageSize;
+
+                if (offset != null)
+                {
+                    url += "&before=" + offset;
+                }
+
+                Console.WriteLine(url);
+
+                var response = await _client.GetAsync(url);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                    return;
+                }
+
+                var responseText = await response.Content.ReadAsStringAsync();
+                var responseData = JsonConvert.DeserializeObject<dynamic>(responseText).data;
+
+                foreach (var d in responseData)
+                {
+                    var id = d.id.ToString();
+                    if (!_metadataManager.HasRecord(id))
+                    {
+                        var postMetadata = new PostMetadata()
+                        {
+                            Id = id,
+                            Permalink = d.permalink.ToString(),
+                            Title = d.title.ToString(),
+                            Domain = d.domain.ToString(),
+                            Url = d.url.ToString(),
+                        };
+                        if (_domainAllowList.Contains(postMetadata.Domain))
+                            _metadataManager.AddRecord(id, postMetadata);
+                    }
+
+                    offset = d.created_utc.ToString();
+                    prevResults++;
+                    totalResults++;
+                }
+            }
+        }
+
+        private static async Task _populateUpdatedRedditInfo(CancellationToken cancellationToken)
+        {
+            foreach (var postMetadata in _metadataManager.Posts.ToList())
+            {
+                if (cancellationToken.IsCancellationRequested)
+                    return;
+
+                await Task.Yield();
+                if (postMetadata.IsReviewed)
+                    continue;
+
+                var approved = false;
+                try
+                {
+                    var json = await _call("python.exe", "get_submission.py " + postMetadata.Id);
+                    var data = JsonConvert.DeserializeObject<dynamic>(json);
+
+                    if (data.hasAuthor == true)
+                        approved = true;
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                postMetadata.IsApproved = approved;
+                postMetadata.IsReviewed = true;
+
+                Console.WriteLine($"Reviewed {postMetadata.Id}: {(approved ? "Approved" : "Denied")}");
+                _metadataManager.Save();
+            }
+        }
+
+        private static async Task _prefetchMp3(CancellationToken cancellationToken)
+        {
+            await Task.Yield();
+
+            var postMetadata = _metadataManager.Posts.ToList()
+                .Where(p => p.IsReviewed && p.DownloadCacheFilename == null && p.DownloadFailed == false && (p.IsUserRequested || p.IsApproved))
+                .OrderBy(p => p.IsUserRequested ? 0 : 1)
+                .FirstOrDefault();
+
+            if (postMetadata == null)
+                return;
+
+            try
+            {
+                var audioDir = Path.Join(Directory.GetCurrentDirectory(), _audioDir);
+                if (!Directory.Exists(audioDir))
+                    Directory.CreateDirectory(audioDir);
+
+                var scriptDir = Path.Join(Directory.GetCurrentDirectory(), "download.py");
+
+                await _call("python.exe", scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
+
+                postMetadata.DownloadCacheFilename = Path.Join(audioDir, postMetadata.Id + ".mp3");
+                _metadataManager.Save();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                postMetadata.DownloadFailed = true;
+                _metadataManager.Save();
+            }
+        }
+
+        private static async Task<string> _call(string exe, string args, string workingDirectory = null, bool redirect = true)
+        {
+            var process = new Process();
+            process.StartInfo.UseShellExecute = false;
+            process.StartInfo.RedirectStandardOutput = redirect;
+            process.StartInfo.RedirectStandardError = redirect;
+            process.StartInfo.FileName = exe;
+            process.StartInfo.Arguments = args;
+            process.StartInfo.WorkingDirectory = workingDirectory ?? Directory.GetCurrentDirectory();
+            process.Start();
+
+            string output = null, stderr = null;
+
+            if (redirect) {
+                output = await process.StandardOutput.ReadToEndAsync();
+                stderr = await process.StandardError.ReadToEndAsync();
+            }
+            process.WaitForExit();
+            if (process.ExitCode > 0)
+                throw new Exception(stderr);
+            return output;
+        }
+    }
+}
