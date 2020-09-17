@@ -1,4 +1,4 @@
-using Discord;
+﻿using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
 using System;
@@ -30,6 +30,7 @@ namespace DankDitties
 
         private List<string> _queue = new List<string>();
         private bool _shouldSkip = false;
+        private PostMetadata _currentSong;
 
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
         {
@@ -168,6 +169,10 @@ namespace DankDitties
             {
                 _currentRunnerCts.Cancel();
             }
+            else if (arg.Content == "!dd info")
+            {
+                arg.Channel.SendMessageAsync("Now playing " + _currentSong?.Title + " - " + _currentSong?.Url);
+            }
             else if (arg.Content.StartsWith("!dd play "))
             {
                 var url = arg.Content.Substring("!dd play ".Length);
@@ -214,6 +219,7 @@ namespace DankDitties
                     if (record.DownloadCacheFilename != null)
                     {
                         _queue.Remove(id);
+                        _currentSong = record;
                         return record.DownloadCacheFilename;
                     }
 
@@ -225,6 +231,7 @@ namespace DankDitties
             if (posts.Count == 0)
                 return null;
             var nextIndex = _random.Next(posts.Count);
+            _currentSong = posts[nextIndex];
             return posts[nextIndex].DownloadCacheFilename;
         }
 
