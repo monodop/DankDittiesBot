@@ -10,5 +10,7 @@ namespace DankDitties
         public string ClientSecret { get; set; }
 
         public string DiscordApiKey { get; set; }
+
+        public string WitAiApiKey { get; set; }
     }
 }

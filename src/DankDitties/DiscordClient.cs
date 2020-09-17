@@ -5,6 +5,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,6 +17,7 @@ namespace DankDitties
     {
         private readonly DiscordSocketClient _client;
         private string _apiKey;
+        private readonly WitAiClient _witAiClient;
         private readonly MetadataManager _metadataManager;
         private Random _random = new Random();
 
@@ -25,14 +27,72 @@ namespace DankDitties
 
         private List<string> _queue = new List<string>();
 
-        public DiscordClient(string apiKey, MetadataManager metadataManager)
+        public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
         {
-            _client = new DiscordSocketClient();
+            _client = new DiscordSocketClient(new DiscordSocketConfig()
+            {
+                //LogLevel = LogSeverity.Debug,
+            });
             _client.Log += OnLog;
+            _client.Ready += OnReady;
             _client.MessageReceived += OnMessageReceived;
 
             _apiKey = apiKey;
+            _witAiClient = witAiClient;
             _metadataManager = metadataManager;
+        }
+
+        private async Task OnReady()
+        {
+            var guild = _client.Guilds.FirstOrDefault(g => g.Id == 493935564832374795);
+            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == 493935564832374803);
+            //var user = voiceChannel.Users.FirstOrDefault(u => u.Id == 158718441287581696);
+            //var userStream = user.AudioStream;
+
+            var audioClient = await voiceChannel.ConnectAsync();
+            _startRunner(voiceChannel);
+            //audioClient.StreamCreated += async (s, e) =>
+            //{
+            //    Console.WriteLine(s);
+            //};
+            //audioClient.SpeakingUpdated += async (s, e) =>
+            //{
+            //    Console.WriteLine(s);
+            //};
+
+            //await _witAiClient.ParseText("play emerald booty zone");
+            foreach (var user in voiceChannel.Users)
+            {
+                var userStream = user.AudioStream;
+                Task.Run(async () =>
+                {
+                    while (true)
+                    {
+                        while (userStream == null)
+                        {
+                            await Task.Delay(TimeSpan.FromMilliseconds(100));
+                            userStream = user.AudioStream;
+                        }
+
+                        try
+                        {
+                            var data = await _witAiClient.ParseAudioStream(userStream);
+                            if (data != null)
+                            {
+                                var text = data.Text?.Trim();
+                                if (!string.IsNullOrWhiteSpace(text))
+                                {
+                                    Console.WriteLine(user.Username + ": " + text);
+                                }
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                        }
+                    }
+                });
+            }
         }
 
         private async Task OnMessageReceived(SocketMessage arg)
@@ -184,6 +244,17 @@ namespace DankDitties
                 Arguments = $"-hide_banner -loglevel panic -i \"{filename}\" -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
+            });
+        }
+
+        private Process _createOutStream()
+        {
+            return Process.Start(new ProcessStartInfo
+            {
+                FileName = "ffmpeg",
+                Arguments = "-hide_banner -ac 2 -f s16le -ar 48000 -i pipe:0 -acodec pcm_u8 -ar 22050 -f wav test_out.wav",
+                UseShellExecute = false,
+                RedirectStandardInput = true,
             });
         }
 

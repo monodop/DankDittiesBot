@@ -36,11 +36,13 @@ namespace DankDitties
             _metadataManager = metadataManager;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            Task.Run(() => _autoPopulate(cts.Token));
-            Task.Run(() => _autoPrefetch(cts.Token));
+            //Task.Run(() => _autoPopulate(cts.Token));
+            //Task.Run(() => _autoPrefetch(cts.Token));
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            var client = new DiscordClient(_secrets.DiscordApiKey, _metadataManager);
+            var aiClient = new WitAiClient(_secrets.WitAiApiKey);
+
+            var client = new DiscordClient(_secrets.DiscordApiKey, aiClient, _metadataManager);
             await client.StartAsync();
 
             Console.CancelKeyPress += (o, e) => cts.Cancel();
