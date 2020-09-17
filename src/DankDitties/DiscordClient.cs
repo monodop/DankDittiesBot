@@ -25,6 +25,9 @@ namespace DankDitties
         private IVoiceChannel _currentVoiceChannel;
         private IAudioClient _currentAudioClient;
 
+        private Process _currentOverlayProcess;
+        private Stream _currentOverlayStream;
+
         private List<string> _queue = new List<string>();
 
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
@@ -83,6 +86,33 @@ namespace DankDitties
                                 if (!string.IsNullOrWhiteSpace(text))
                                 {
                                     Console.WriteLine(user.Username + ": " + text);
+                                    var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
+                                    Console.WriteLine("Confidence: " + playSongIntent?.Confidence * 100);
+                                    if (playSongIntent?.Confidence > 0.75)
+                                    {
+                                        foreach (var entity in data.Entities.Values.SelectMany(e => e))
+                                        {
+                                            if (entity.Role == "search_query")
+                                            {
+                                                var searchString = entity.Body;
+                                                var matches = from post in _metadataManager.Posts
+                                                              let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
+                                                              select (post, relevance);
+                                                var topMatch = matches.OrderByDescending(m => m.relevance);
+                                                Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
+                                                Console.WriteLine();
+                                                var closestMatch = topMatch.FirstOrDefault().post;
+                                                if (closestMatch != null)
+                                                {
+                                                    _queue.Add(closestMatch.Id);
+                                                    _say("I have added your song, " + closestMatch.Title + " to the queue");
+                                                    //_startRunner(voiceChannel);
+                                                    Console.WriteLine("Added to queue");
+                                                }
+                                                //Console.WriteLine("Closest match: " + topMatch.post.Title);
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -93,6 +123,17 @@ namespace DankDitties
                     }
                 });
             }
+        }
+
+        private async Task _say(string text)
+        {
+            await Program.Call("python", $"tts.py tts.mp3 \"{text.Replace("\"", "\\\"")}\"");
+
+            _currentOverlayProcess?.Dispose();
+            _currentOverlayStream?.Dispose();
+
+            _currentOverlayProcess = _createStream("tts.mp3");
+            _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
         }
 
         private async Task OnMessageReceived(SocketMessage arg)
@@ -207,6 +248,37 @@ namespace DankDitties
                             var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize);
                             if (byteCount == 0)
                                 break;
+
+                            if (_currentOverlayStream != null)
+                            {
+                                var overlayBuffer = new byte[blockSize];
+                                var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize);
+
+                                if (overlayByteCount == 0)
+                                {
+                                    _currentOverlayStream?.Dispose();
+                                    _currentOverlayStream = null;
+                                }
+                                else
+                                {
+                                    var len = Math.Min(overlayByteCount, byteCount);
+                                    for (int i = 0; i < len; i+=2)
+                                    {
+                                        short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                                        short b2 = (short)(buffer[i] & 0xff);
+
+                                        short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
+                                        short o2 = (short)(overlayBuffer[i] & 0xff);
+
+                                        short data = (short)(b1 | b2);
+                                        short data2 = (short)(o1 | o2);
+                                        data = (short)((data / 4) + data2 * 1.25);
+
+                                        buffer[i] = (byte)data;
+                                        buffer[i + 1] = (byte)(data >> 8);
+                                    }
+                                }
+                            }
 
                             for (var i = 0; i < byteCount; i += 2)
                             {

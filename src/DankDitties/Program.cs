@@ -158,7 +158,7 @@ namespace DankDitties
                 var approved = false;
                 try
                 {
-                    var json = await _call("python.exe", "get_submission.py " + postMetadata.Id);
+                    var json = await Call("python.exe", "get_submission.py " + postMetadata.Id);
                     var data = JsonConvert.DeserializeObject<dynamic>(json);
 
                     if (data.hasAuthor == true)
@@ -197,7 +197,7 @@ namespace DankDitties
 
                 var scriptDir = Path.Join(Directory.GetCurrentDirectory(), "download.py");
 
-                await _call("python.exe", scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
+                await Call("python.exe", scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
 
                 postMetadata.DownloadCacheFilename = Path.Join(audioDir, postMetadata.Id + ".mp3");
                 _metadataManager.Save();
@@ -210,7 +210,7 @@ namespace DankDitties
             }
         }
 
-        private static async Task<string> _call(string exe, string args, string workingDirectory = null, bool redirect = true)
+        public static async Task<string> Call(string exe, string args, string workingDirectory = null, bool redirect = true)
         {
             var process = new Process();
             process.StartInfo.UseShellExecute = false;
