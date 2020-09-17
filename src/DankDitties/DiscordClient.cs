@@ -135,16 +135,37 @@ namespace DankDitties
                         continue;
                     }
                     using var process = _createStream(filename);
-                    using var stream = process.StandardOutput.BaseStream;
-                    using var pcmStream = audioClient.CreatePCMStream(AudioApplication.Music);
+                    using var audioInStream = process.StandardOutput.BaseStream;
+                    using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
 
                     try
                     {
-                        await stream.CopyToAsync(pcmStream, cancellationToken);
+                        while (!process.HasExited && !cancellationToken.IsCancellationRequested)
+                        {
+                            var blockSize = 2880;
+                            var buffer = new byte[blockSize];
+                            var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize);
+                            if (byteCount == 0)
+                                break;
+
+                            for (var i = 0; i < byteCount; i += 2)
+                            {
+                                short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                                short b2 = (short)(buffer[i] & 0xff);
+
+                                short data = (short)(b1 | b2);
+                                data = (short)(data * 0.5f); // 50% volume
+
+                                buffer[i] = (byte)data;
+                                buffer[i + 1] = (byte)(data >> 8);
+                            }
+
+                            await audioOutStream.WriteAsync(buffer, 0, byteCount);
+                        }
                     }
                     finally
                     {
-                        await pcmStream.FlushAsync(cancellationToken);
+                        await audioOutStream.FlushAsync();
                     }
                 }
                 catch (Exception e)
