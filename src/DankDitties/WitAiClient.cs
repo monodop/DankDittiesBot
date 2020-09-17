@@ -72,7 +72,7 @@ namespace DankDitties
                     {
                         while (true)
                         {
-                            var shortCts = new CancellationTokenSource(TimeSpan.FromSeconds(1));
+                            var shortCts = new CancellationTokenSource(TimeSpan.FromSeconds(0.5));
                             var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(shortCts.Token, cts.Token);
                             if (await stream.ReadAsync(buffer, 0, buffer.Length, combinedCts.Token) == 0)
                                 break;

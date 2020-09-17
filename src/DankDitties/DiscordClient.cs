@@ -1,4 +1,4 @@
-﻿using Discord;
+using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
 using System;
@@ -29,6 +29,7 @@ namespace DankDitties
         private Stream _currentOverlayStream;
 
         private List<string> _queue = new List<string>();
+        private bool _shouldSkip = false;
 
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
         {
@@ -52,7 +53,7 @@ namespace DankDitties
             //var user = voiceChannel.Users.FirstOrDefault(u => u.Id == 158718441287581696);
             //var userStream = user.AudioStream;
 
-            var audioClient = await voiceChannel.ConnectAsync();
+            //var audioClient = await voiceChannel.ConnectAsync();
             _startRunner(voiceChannel);
             //audioClient.StreamCreated += async (s, e) =>
             //{
@@ -88,14 +89,24 @@ namespace DankDitties
                                     Console.WriteLine(user.Username + ": " + text);
                                     var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
                                     Console.WriteLine("Confidence: " + playSongIntent?.Confidence * 100);
-                                    if (playSongIntent?.Confidence > 0.75)
+                                    if (playSongIntent?.Confidence > 0.75 && text.StartsWith("play"))
                                     {
                                         foreach (var entity in data.Entities.Values.SelectMany(e => e))
                                         {
                                             if (entity.Role == "search_query")
                                             {
                                                 var searchString = entity.Body;
+
+                                                if (searchString == "next")
+                                                {
+                                                    //_startRunner(voiceChannel);
+                                                    _shouldSkip = true;
+                                                    _say("Ok, I am skipping this song");
+                                                    continue;
+                                                }
+
                                                 var matches = from post in _metadataManager.Posts
+                                                              where post.IsReady
                                                               let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
                                                               select (post, relevance);
                                                 var topMatch = matches.OrderByDescending(m => m.relevance);
@@ -150,7 +161,8 @@ namespace DankDitties
             }
             else if (arg.Content == "!dd skip" && voiceChannel != null)
             {
-                _startRunner(voiceChannel);
+                //_startRunner(voiceChannel);
+                _shouldSkip = true;
             }
             else if (arg.Content == "!dd stop")
             {
@@ -241,7 +253,7 @@ namespace DankDitties
 
                     try
                     {
-                        while (!process.HasExited && !cancellationToken.IsCancellationRequested)
+                        while (!process.HasExited && !cancellationToken.IsCancellationRequested && !_shouldSkip)
                         {
                             var blockSize = 2880;
                             var buffer = new byte[blockSize];
@@ -298,6 +310,7 @@ namespace DankDitties
                     finally
                     {
                         await audioOutStream.FlushAsync();
+                        _shouldSkip = false;
                     }
                 }
                 catch (Exception e)

@@ -36,8 +36,8 @@ namespace DankDitties
             _metadataManager = metadataManager;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-            //Task.Run(() => _autoPopulate(cts.Token));
-            //Task.Run(() => _autoPrefetch(cts.Token));
+            Task.Run(() => _autoPopulate(cts.Token));
+            Task.Run(() => _autoPrefetch(cts.Token));
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
             var aiClient = new WitAiClient(_secrets.WitAiApiKey);
@@ -59,7 +59,7 @@ namespace DankDitties
                     await Task.Yield();
                     await _populateBasicRedditInfo();
                     await _populateUpdatedRedditInfo(cancellationToken);
-                    await Task.Delay(TimeSpan.FromHours(6));
+                    await Task.Delay(TimeSpan.FromMinutes(30));
                 }
                 catch (Exception e)
                 {
