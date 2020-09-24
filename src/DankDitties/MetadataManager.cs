@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace DankDitties
@@ -11,7 +12,16 @@ namespace DankDitties
         private readonly string _filename;
         private Metadata _metadata;
 
-        public IEnumerable<PostMetadata> Posts => _metadata.Posts.Values;
+        private object _lockObj = new object();
+        public IEnumerable<PostMetadata> Posts {
+            get
+            {
+                lock (_lockObj)
+                {
+                    return _metadata.Posts.Values.ToList();
+                }
+            }
+        }
 
         public MetadataManager(string filename)
         {

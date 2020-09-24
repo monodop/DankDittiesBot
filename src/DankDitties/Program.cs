@@ -23,12 +23,21 @@ namespace DankDitties
         private static MetadataManager _metadataManager;
         private static string _audioDir = "audio";
 
+        public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python.exe");
+        public static readonly string ScriptDir = _getEnv("SCRIPT_DIR");
+        public static readonly string DataDir = _getEnv("DATA_DIR");
+
+        private static string _getEnv(string name, string defaultValue = null)
+        {
+            return Environment.GetEnvironmentVariable(name) ?? defaultValue;
+        }
+
         public static async Task Main(string[] args)
         {
             var cts = new CancellationTokenSource();
 
-            var workingDirectory = args.Length > 0 ? args[0] : "D:/Harrison/Documents/git/DankDitties";
-            Directory.SetCurrentDirectory(workingDirectory);
+            if (DataDir != null)
+                Directory.SetCurrentDirectory(DataDir);
 
             _secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
 
@@ -158,7 +167,8 @@ namespace DankDitties
                 var approved = false;
                 try
                 {
-                    var json = await Call("python.exe", "get_submission.py " + postMetadata.Id);
+                    var scriptDir = Path.Join(ScriptDir, "get_submission.py");
+                    var json = await Call(PythonExecutable, scriptDir + " " + postMetadata.Id);
                     var data = JsonConvert.DeserializeObject<dynamic>(json);
 
                     if (data.hasAuthor == true)
@@ -195,9 +205,9 @@ namespace DankDitties
                 if (!Directory.Exists(audioDir))
                     Directory.CreateDirectory(audioDir);
 
-                var scriptDir = Path.Join(Directory.GetCurrentDirectory(), "download.py");
+                var scriptDir = Path.Join(ScriptDir, "download.py");
 
-                await Call("python.exe", scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
+                await Call(PythonExecutable, scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
 
                 postMetadata.DownloadCacheFilename = Path.Join(audioDir, postMetadata.Id + ".mp3");
                 _metadataManager.Save();

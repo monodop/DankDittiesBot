@@ -145,7 +145,8 @@ namespace DankDitties
 
         private async Task _say(string text)
         {
-            await Program.Call("python", $"tts.py tts.mp3 \"{text.Replace("\"", "\\\"")}\"");
+            var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
+            await Program.Call(Program.PythonExecutable, $"{scriptDir} tts.mp3 \"{text.Replace("\"", "\\\"")}\"");
 
             _currentOverlayProcess?.Dispose();
             _currentOverlayStream?.Dispose();
