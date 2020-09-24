@@ -346,6 +346,7 @@ namespace DankDitties
             try
             {
                 Console.WriteLine("Job Runner Starting");
+                _thingsToSay.Clear();
 
                 if (_currentVoiceChannel?.Id != voiceChannel.Id)
                 {
