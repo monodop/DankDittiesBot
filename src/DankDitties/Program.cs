@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -56,7 +56,7 @@ namespace DankDitties
 
             Console.CancelKeyPress += (o, e) => cts.Cancel();
 
-            cts.Token.WaitHandle.WaitOne();
+            await cts.Token.WhenCancelled();
         }
 
         private static async Task _autoPopulate(CancellationToken cancellationToken)

@@ -32,11 +32,13 @@ namespace DankDitties
         private bool _shouldSkip = false;
         private PostMetadata _currentSong;
 
+        private ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)> _voiceAssistantRunners = new ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)>();
+
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
-                //LogLevel = LogSeverity.Debug,
+
             });
             _client.Log += OnLog;
             _client.Ready += OnReady;
@@ -47,129 +49,185 @@ namespace DankDitties
             _metadataManager = metadataManager;
         }
 
-        private async Task OnReady()
+        private async Task _killVoiceAssistantRunnerAsync(ulong id)
         {
-            var guild = _client.Guilds.FirstOrDefault(g => g.Id == 493935564832374795);
-            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == 493935564832374803);
-            //var user = voiceChannel.Users.FirstOrDefault(u => u.Id == 158718441287581696);
-            //var userStream = user.AudioStream;
+            if (_voiceAssistantRunners.TryRemove(id, out var tuple))
+            {
+                var (runner, _, cts) = tuple;
+                Console.WriteLine("Cancelling user token " + cts.GetHashCode());
+                cts.Cancel();
+                await runner;
+            }
+        }
 
-            //var audioClient = await voiceChannel.ConnectAsync();
-            _startRunner(voiceChannel);
-            //audioClient.StreamCreated += async (s, e) =>
-            //{
-            //    Console.WriteLine(s);
-            //};
-            //audioClient.SpeakingUpdated += async (s, e) =>
-            //{
-            //    Console.WriteLine(s);
-            //};
+        private void _addVoiceAssistantRunner(SocketGuildUser user)
+        {
+            if (user.IsBot)
+                return;
 
-            //await _witAiClient.ParseText("play emerald booty zone");
+            var cts = new CancellationTokenSource();
+            Console.WriteLine("Creating new cancellation token for " + user.Username + " " + cts.GetHashCode());
+            var runner = Task.Run(() => _voiceAssistantRunner(user, cts.Token));
+            if (!_voiceAssistantRunners.TryAdd(user.Id, (runner, user, cts)))
+            {
+                cts.Cancel();
+            }
+        }
+
+        private async Task _refreshVoiceAssistantRunners(SocketVoiceChannel voiceChannel)
+        {
             foreach (var user in voiceChannel.Users)
             {
-                var userStream = user.AudioStream;
-                Task.Run(async () =>
+                if (user.IsBot)
+                    continue;
+
+                if (!_voiceAssistantRunners.ContainsKey(user.Id))
                 {
-                    while (true)
+                    Console.WriteLine("creating user assistant runner " + user.Username);
+                    _addVoiceAssistantRunner(user);
+                }
+            }
+
+            foreach (var (id, (_, user, _)) in _voiceAssistantRunners)
+            {
+                if (!voiceChannel.Users.Contains(user))
+                {
+                    Console.WriteLine("killing user assistant runner " + user.Username);
+                    await _killVoiceAssistantRunnerAsync(id);
+                }
+            }
+        }
+
+        private async Task _voiceAssistantRunner(SocketGuildUser user, CancellationToken cancellationToken)
+        {
+            Console.WriteLine("Starting runner for " + user.Username);
+            try
+            {
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var userStream = user.AudioStream;
+                    if (userStream == null)
+                        return;
+
+                    try
                     {
-                        while (userStream == null)
+                        var data = await _witAiClient.ParseAudioStream(userStream, cancellationToken);
+                        if (user.Username == "monodop")
+                            Console.WriteLine($"{user.Username} finished parsing");
+                        if (data != null)
                         {
-                            await Task.Delay(TimeSpan.FromMilliseconds(100));
-                            userStream = user.AudioStream;
-                        }
-
-                        try
-                        {
-                            var data = await _witAiClient.ParseAudioStream(userStream);
-                            if (data != null)
+                            var text = data.Text?.Trim();
+                            if (!string.IsNullOrWhiteSpace(text))
                             {
-                                var text = data.Text?.Trim();
-                                if (!string.IsNullOrWhiteSpace(text))
-                                {
-                                    Console.WriteLine(user.Username + ": " + text);
-                                    var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
+                                Console.WriteLine(user.Username + ": " + text);
+                                var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
 
-                                    if (text.ToLower().StartsWith("i'm "))
+                                if (text.ToLower().StartsWith("i'm "))
+                                {
+                                    _say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
+                                }
+                                else if (text.ToLower().StartsWith("play "))
+                                {
+                                    var searchString = text.Substring("play ".Length);
+
+                                    if (searchString == "next")
                                     {
-                                        _say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
+                                        _shouldSkip = true;
+                                        _say("Ok, I am skipping this song");
+                                        continue;
                                     }
 
-                                    Console.WriteLine("Confidence: " + playSongIntent?.Confidence * 100);
-                                    if (playSongIntent?.Confidence > 0.75 && text.StartsWith("play"))
+                                    var matches = from post in _metadataManager.Posts
+                                                  where post.IsReady
+                                                  let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
+                                                  select (post, relevance);
+                                    var topMatch = matches.OrderByDescending(m => m.relevance);
+                                    Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
+                                    Console.WriteLine();
+                                    var closestMatch = topMatch.FirstOrDefault().post;
+                                    if (closestMatch != null)
                                     {
-                                        foreach (var entity in data.Entities.Values.SelectMany(e => e))
-                                        {
-                                            if (entity.Role == "search_query")
-                                            {
-                                                var searchString = entity.Body;
-
-                                                if (searchString == "next")
-                                                {
-                                                    //_startRunner(voiceChannel);
-                                                    _shouldSkip = true;
-                                                    _say("Ok, I am skipping this song");
-                                                    continue;
-                                                }
-
-                                                var matches = from post in _metadataManager.Posts
-                                                              where post.IsReady
-                                                              let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
-                                                              select (post, relevance);
-                                                var topMatch = matches.OrderByDescending(m => m.relevance);
-                                                Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
-                                                Console.WriteLine();
-                                                var closestMatch = topMatch.FirstOrDefault().post;
-                                                if (closestMatch != null)
-                                                {
-                                                    _queue.Add(closestMatch.Id);
-                                                    _say("I have added your song, " + closestMatch.Title + " to the queue");
-                                                    //_startRunner(voiceChannel);
-                                                    Console.WriteLine("Added to queue");
-                                                }
-                                                //Console.WriteLine("Closest match: " + topMatch.post.Title);
-                                            }
-                                        }
+                                        _queue.Add(closestMatch.Id);
+                                        _say("I have added your song, " + closestMatch.Title + " to the queue");
+                                        Console.WriteLine("Added " + closestMatch.Title + " to queue");
                                     }
                                 }
                             }
                         }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                        }
                     }
-                });
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e);
+                    }
+                }
+                _say("Goodbye, " + user.Nickname ?? user.Username);
+            }
+            finally
+            {
+                Console.WriteLine("Killing runner for " + user.Username);
+                _killVoiceAssistantRunnerAsync(user.Id);
             }
         }
 
-        private async Task _say(string text)
+        private async Task OnReady()
         {
-            var filename = "tts.mp3";
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-            {
-                var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
-                await Program.Call(Program.PythonExecutable, $"{scriptDir} {filename} \"{text.Replace("\"", "\\\"")}\"");
-            }
-            else
-            {
-                filename = "tts.wav";
-                await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
-            }
+            var guild = _client.Guilds.FirstOrDefault(g => g.Id == 493935564832374795);
+            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == 493935564832374803);
 
-            _currentOverlayProcess?.Dispose();
-            _currentOverlayStream?.Dispose();
+            _startRunner(voiceChannel);
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+            Task.Run(async () =>
+            {
+                while (true)
+                {
+                    try
+                    {
+                        await Task.Delay(TimeSpan.FromSeconds(1));
+                        await _refreshVoiceAssistantRunners(voiceChannel);
+                    }
+                    catch
+                    {
 
-            _currentOverlayProcess = _createStream(filename);
-            _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
+                    }
+                }
+            });
+#pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
+
+            foreach (var user in voiceChannel.Users)
+            {
+                var userStream = user.AudioStream;
+            }
+        }
+
+        private void _say(string text)
+        {
+            Console.WriteLine("Saying: " + text);
+            Task.Run(async () =>
+            {
+                var filename = "tts.mp3";
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
+                    await Program.Call(Program.PythonExecutable, $"{scriptDir} {filename} \"{text.Replace("\"", "\\\"")}\"");
+                }
+                else
+                {
+                    filename = "tts.wav";
+                    await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
+                }
+
+                _currentOverlayProcess?.Dispose();
+                _currentOverlayStream?.Dispose();
+
+                _currentOverlayProcess = _createStream(filename);
+                _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
+            });
         }
 
         private async Task OnMessageReceived(SocketMessage arg)
         {
-            //Console.WriteLine("Message received: " + arg.Content);
-
             var author = arg.Author as IGuildUser;
-            var voiceChannel = author?.VoiceChannel;
+            var voiceChannel = author?.VoiceChannel as SocketVoiceChannel;
 
             if (arg.Content == "!dd start" && voiceChannel != null)
             {
@@ -178,7 +236,6 @@ namespace DankDitties
             }
             else if (arg.Content == "!dd skip" && voiceChannel != null)
             {
-                //_startRunner(voiceChannel);
                 _shouldSkip = true;
             }
             else if (arg.Content == "!dd stop")
@@ -215,7 +272,7 @@ namespace DankDitties
             }
         }
 
-        private void _startRunner(IVoiceChannel channel)
+        private void _startRunner(SocketVoiceChannel channel)
         {
             _currentRunnerCts?.Cancel();
             var cts = new CancellationTokenSource();
@@ -251,7 +308,7 @@ namespace DankDitties
             return posts[nextIndex].DownloadCacheFilename;
         }
 
-        private async Task _runner(IVoiceChannel voiceChannel, CancellationToken cancellationToken)
+        private async Task _runner(SocketVoiceChannel voiceChannel, CancellationToken cancellationToken)
         {
             if (_currentVoiceChannel?.Id != voiceChannel.Id)
             {
@@ -259,6 +316,16 @@ namespace DankDitties
                 _currentAudioClient = await voiceChannel.ConnectAsync();
             }
             var audioClient = _currentAudioClient;
+
+            audioClient.StreamCreated += (s, e) =>
+            {
+                var match = voiceChannel.Users.FirstOrDefault(u => u.AudioStream == e);
+                if (match != null) {
+                    _say("Welcome to the discord channel, " + match.Nickname ?? match.Username);
+                    _addVoiceAssistantRunner(match);
+                }
+                return Task.FromResult(0);
+            };
 
             while (!cancellationToken.IsCancellationRequested)
             {
