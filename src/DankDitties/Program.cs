@@ -26,6 +26,21 @@ namespace DankDitties
         public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python.exe");
         public static readonly string ScriptDir = _getEnv("SCRIPT_DIR");
         public static readonly string DataDir = _getEnv("DATA_DIR");
+        public static readonly bool EnableVoiceCommands = _getEnv("ENABLE_VOICE_COMMANDS", "true") == "true";
+        public static ulong? VoiceCommandRole
+        {
+            get
+            {
+                var roleStr = _getEnv("VOICE_COMMAND_ROLE");
+                if (roleStr != null)
+                    return ulong.Parse(roleStr);
+                return null;
+            }
+        }
+        public static readonly ulong ServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
+        public static readonly ulong ChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
+        public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
+        public static readonly string WitAiApiKeyOverride = _getEnv("DISCORD_API_KEY");
 
         private static string _getEnv(string name, string defaultValue = null)
         {
@@ -40,6 +55,8 @@ namespace DankDitties
                 Directory.SetCurrentDirectory(DataDir);
 
             _secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
+            _secrets.DiscordApiKey = DiscordApiKeyOverride ?? _secrets.DiscordApiKey;
+            _secrets.WitAiApiKey = WitAiApiKeyOverride ?? _secrets.WitAiApiKey;
 
             using var metadataManager = new MetadataManager("metadata.json");
             _metadataManager = metadataManager;

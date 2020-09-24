@@ -61,9 +61,23 @@ namespace DankDitties
             }
         }
 
+        private bool _canAccessVoiceAssistant(SocketGuildUser user)
+        {
+            if (!Program.EnableVoiceCommands)
+                return false;
+
+            if (user.IsBot)
+                return false;
+
+            if (Program.VoiceCommandRole != null && !user.Roles.Any(r => r.Id == Program.VoiceCommandRole))
+                return false;
+
+            return true;
+        }
+
         private void _addVoiceAssistantRunner(SocketGuildUser user)
         {
-            if (user.IsBot)
+            if (!_canAccessVoiceAssistant(user))
                 return;
 
             var cts = new CancellationTokenSource();
@@ -79,7 +93,7 @@ namespace DankDitties
         {
             foreach (var user in voiceChannel.Users)
             {
-                if (user.IsBot)
+                if (!_canAccessVoiceAssistant(user))
                     continue;
 
                 if (!_voiceAssistantRunners.ContainsKey(user.Id))
@@ -170,8 +184,8 @@ namespace DankDitties
 
         private async Task OnReady()
         {
-            var guild = _client.Guilds.FirstOrDefault(g => g.Id == 493935564832374795);
-            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == 493935564832374803);
+            var guild = _client.Guilds.FirstOrDefault(g => g.Id == Program.ServerId);
+            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.ChannelId);
 
             _startRunner(voiceChannel);
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -331,8 +345,11 @@ namespace DankDitties
             {
                 var match = voiceChannel.Users.FirstOrDefault(u => u.AudioStream == e);
                 if (match != null) {
-                    _say("Welcome to the discord channel, " + match.Nickname ?? match.Username);
-                    _addVoiceAssistantRunner(match);
+                    if (_canAccessVoiceAssistant(match))
+                    {
+                        _say("Welcome to the discord channel, " + match.Nickname ?? match.Username);
+                        _addVoiceAssistantRunner(match);
+                    }
                 }
                 return Task.FromResult(0);
             };
@@ -387,7 +404,7 @@ namespace DankDitties
 
                                         short data = (short)(b1 | b2);
                                         short data2 = (short)(o1 | o2);
-                                        data = (short)((data * 0.3f) + (data2 * 2.5));
+                                        data = (short)((data * 0.3f) + (data2 * 2));
 
                                         buffer[i] = (byte)data;
                                         buffer[i + 1] = (byte)(data >> 8);
