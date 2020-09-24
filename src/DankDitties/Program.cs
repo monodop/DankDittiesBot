@@ -102,6 +102,8 @@ namespace DankDitties
                 {
                     await Task.Yield();
                     await _prefetchMp3(cancellationToken);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+
                 }
                 catch (Exception e)
                 {
