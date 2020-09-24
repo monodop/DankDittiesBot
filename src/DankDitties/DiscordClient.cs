@@ -201,6 +201,8 @@ namespace DankDitties
                     {
                         await Task.Delay(TimeSpan.FromSeconds(1));
                         await _refreshVoiceAssistantRunners(voiceChannel);
+                        if (_currentVoiceChannel == null)
+                            _startRunner(voiceChannel);
                     }
                     catch
                     {
@@ -257,7 +259,7 @@ namespace DankDitties
             var author = arg.Author as IGuildUser;
             var voiceChannel = author?.VoiceChannel as SocketVoiceChannel;
 
-            if (voiceChannel.Id != Program.ChannelId)
+            if (voiceChannel?.Id != Program.ChannelId)
                 return;
 
             if (arg.Content == "!dd start" && voiceChannel != null)
@@ -341,113 +343,137 @@ namespace DankDitties
 
         private async Task _runner(SocketVoiceChannel voiceChannel, CancellationToken cancellationToken)
         {
-            if (_currentVoiceChannel?.Id != voiceChannel.Id)
+            try
             {
-                _currentVoiceChannel = voiceChannel;
-                _currentAudioClient = await voiceChannel.ConnectAsync();
-            }
-            var audioClient = _currentAudioClient;
+                Console.WriteLine("Job Runner Starting");
 
-            audioClient.StreamCreated += (s, e) =>
-            {
-                var match = voiceChannel.Users.FirstOrDefault(u => u.AudioStream == e);
-                if (match != null) {
-                    if (_canAccessVoiceAssistant(match))
-                    {
-                        _say("Welcome to the discord channel, " + match.Nickname ?? match.Username);
-                        _addVoiceAssistantRunner(match);
-                    }
-                }
-                return Task.FromResult(0);
-            };
-
-            while (!cancellationToken.IsCancellationRequested)
-            {
-                try
+                if (_currentVoiceChannel?.Id != voiceChannel.Id)
                 {
-                    var filename = _getNext();
-                    if (filename == null)
-                    {
-                        await Task.Yield();
-                        continue;
-                    }
-                    using var process = _createStream(filename);
-                    using var audioInStream = process.StandardOutput.BaseStream;
-                    using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
+                    _currentVoiceChannel = voiceChannel;
+                    _currentAudioClient = await voiceChannel.ConnectAsync();
+                }
+                var audioClient = _currentAudioClient;
 
+                audioClient.StreamCreated += (s, e) =>
+                {
+                    var match = voiceChannel.Users.FirstOrDefault(u => u.AudioStream == e);
+                    if (match != null)
+                    {
+                        if (_canAccessVoiceAssistant(match))
+                        {
+                            _say("Welcome to the discord channel, " + match.Nickname ?? match.Username);
+                            _addVoiceAssistantRunner(match);
+                        }
+                    }
+                    return Task.FromResult(0);
+                };
+                audioClient.Disconnected += (e) =>
+                {
+                    Console.WriteLine(e);
+                    _currentRunnerCts?.Cancel();
+                    return Task.FromResult(0);
+                };
+
+                while (!cancellationToken.IsCancellationRequested)
+                {
                     try
                     {
-                        while (!process.HasExited && !cancellationToken.IsCancellationRequested && !_shouldSkip)
+                        var filename = _getNext();
+                        if (filename == null)
                         {
-                            var blockSize = 2880;
-                            var buffer = new byte[blockSize];
-                            var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize);
-                            if (byteCount == 0)
-                                break;
+                            await Task.Yield();
+                            continue;
+                        }
+                        using var process = _createStream(filename);
+                        using var audioInStream = process.StandardOutput.BaseStream;
+                        using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
 
-                            if (_currentOverlayStream != null)
+                        try
+                        {
+                            while (!process.HasExited && !cancellationToken.IsCancellationRequested && !_shouldSkip)
                             {
-                                var overlayBuffer = new byte[blockSize];
-                                var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize);
+                                cancellationToken.ThrowIfCancellationRequested();
+                                var blockSize = 2880;
+                                var buffer = new byte[blockSize];
+                                var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize, cancellationToken);
+                                if (byteCount == 0)
+                                    break;
 
-                                if (overlayByteCount == 0)
+                                if (_currentOverlayStream != null)
                                 {
-                                    _currentOverlayStream?.Dispose();
-                                    _currentOverlayStream = null;
-                                    _currentOverlayProcess?.Dispose();
-                                    _currentOverlayProcess = null;
-                                    _sayNext();
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    var overlayBuffer = new byte[blockSize];
+                                    var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize, cancellationToken);
+
+                                    if (overlayByteCount == 0)
+                                    {
+                                        _currentOverlayStream?.Dispose();
+                                        _currentOverlayStream = null;
+                                        _currentOverlayProcess?.Dispose();
+                                        _currentOverlayProcess = null;
+                                        _sayNext();
+                                    }
+                                    else
+                                    {
+                                        var len = Math.Min(overlayByteCount, byteCount);
+                                        for (int i = 0; i < len; i += 2)
+                                        {
+                                            short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                                            short b2 = (short)(buffer[i] & 0xff);
+
+                                            short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
+                                            short o2 = (short)(overlayBuffer[i] & 0xff);
+
+                                            short data = (short)(b1 | b2);
+                                            short data2 = (short)(o1 | o2);
+                                            data = (short)((data * (Program.SoundVolume / 100f) * 0.9f) + (data2 * (Program.VoiceAssistantVolume / 100f)));
+
+                                            buffer[i] = (byte)data;
+                                            buffer[i + 1] = (byte)(data >> 8);
+                                        }
+                                    }
                                 }
                                 else
                                 {
-                                    var len = Math.Min(overlayByteCount, byteCount);
-                                    for (int i = 0; i < len; i+=2)
+                                    for (var i = 0; i < byteCount; i += 2)
                                     {
                                         short b1 = (short)((buffer[i + 1] & 0xff) << 8);
                                         short b2 = (short)(buffer[i] & 0xff);
 
-                                        short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
-                                        short o2 = (short)(overlayBuffer[i] & 0xff);
-
                                         short data = (short)(b1 | b2);
-                                        short data2 = (short)(o1 | o2);
-                                        data = (short)((data * 0.3f) + (data2 * 2));
+                                        data = (short)(data * (Program.SoundVolume / 100f));
 
                                         buffer[i] = (byte)data;
                                         buffer[i + 1] = (byte)(data >> 8);
                                     }
                                 }
+
+                                cancellationToken.ThrowIfCancellationRequested();
+                                await audioOutStream.WriteAsync(buffer, 0, byteCount, cancellationToken);
                             }
-                            else
-                            {
-                                for (var i = 0; i < byteCount; i += 2)
-                                {
-                                    short b1 = (short)((buffer[i + 1] & 0xff) << 8);
-                                    short b2 = (short)(buffer[i] & 0xff);
-
-                                    short data = (short)(b1 | b2);
-                                    data = (short)(data * 0.4f); // 50% volume
-
-                                    buffer[i] = (byte)data;
-                                    buffer[i + 1] = (byte)(data >> 8);
-                                }
-                            }
-
-                            await audioOutStream.WriteAsync(buffer, 0, byteCount);
+                        }
+                        finally
+                        {
+                            cancellationToken.ThrowIfCancellationRequested();
+                            await audioOutStream.FlushAsync(cancellationToken);
+                            _shouldSkip = false;
                         }
                     }
-                    finally
+                    catch (Exception e)
                     {
-                        await audioOutStream.FlushAsync();
-                        _shouldSkip = false;
+                        Console.WriteLine(e);
                     }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                }
-            }
 
+                Console.WriteLine("Job Runner Ending");
+            }
+            finally
+            {
+                _currentAudioClient = null;
+                _currentRunnerCts = null;
+                _currentSong = null;
+                _currentVoiceChannel = null;
+            }
         }
 
         private Process _createStream(string filename)
