@@ -145,13 +145,22 @@ namespace DankDitties
 
         private async Task _say(string text)
         {
-            var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
-            await Program.Call(Program.PythonExecutable, $"{scriptDir} tts.mp3 \"{text.Replace("\"", "\\\"")}\"");
+            var filename = "tts.mp3";
+            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            {
+                var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
+                await Program.Call(Program.PythonExecutable, $"{scriptDir} {filename} \"{text.Replace("\"", "\\\"")}\"");
+            }
+            else
+            {
+                filename = "tts.wav";
+                await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
+            }
 
             _currentOverlayProcess?.Dispose();
             _currentOverlayStream?.Dispose();
 
-            _currentOverlayProcess = _createStream("tts.mp3");
+            _currentOverlayProcess = _createStream(filename);
             _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
         }
 
@@ -298,24 +307,26 @@ namespace DankDitties
 
                                         short data = (short)(b1 | b2);
                                         short data2 = (short)(o1 | o2);
-                                        data = (short)((data / 4) + data2 * 1.25);
+                                        data = (short)((data * 0.3f) + (data2 * 2.5));
 
                                         buffer[i] = (byte)data;
                                         buffer[i + 1] = (byte)(data >> 8);
                                     }
                                 }
                             }
-
-                            for (var i = 0; i < byteCount; i += 2)
+                            else
                             {
-                                short b1 = (short)((buffer[i + 1] & 0xff) << 8);
-                                short b2 = (short)(buffer[i] & 0xff);
+                                for (var i = 0; i < byteCount; i += 2)
+                                {
+                                    short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                                    short b2 = (short)(buffer[i] & 0xff);
 
-                                short data = (short)(b1 | b2);
-                                data = (short)(data * 0.5f); // 50% volume
+                                    short data = (short)(b1 | b2);
+                                    data = (short)(data * 0.4f); // 50% volume
 
-                                buffer[i] = (byte)data;
-                                buffer[i + 1] = (byte)(data >> 8);
+                                    buffer[i] = (byte)data;
+                                    buffer[i + 1] = (byte)(data >> 8);
+                                }
                             }
 
                             await audioOutStream.WriteAsync(buffer, 0, byteCount);

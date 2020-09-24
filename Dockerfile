@@ -10,7 +10,6 @@ COPY src/ .
 RUN dotnet publish -c Release -o dist
 
 # PYTHON
-#FROM python:3.7-slim as pythonBuilder
 FROM amd64/debian:buster-slim as pythonBuilder
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -27,17 +26,19 @@ RUN pip3 install --user -r requirements.txt
 FROM mcr.microsoft.com/dotnet/core/runtime:3.1
 WORKDIR /app
 
+RUN echo "deb http://deb.debian.org/debian buster non-free" >> /etc/apt/sources.list
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
         ffmpeg \
         libsodium-dev \
         libopus-dev \
+        espeak \
+        libespeak1 \
         ca-certificates \
+        libttspico-utils \
         python3
 
 COPY --from=clientBuilder /app/dist /app/client
-#RUN cp /usr/lib/x86_64-linux-gnu/libopus.so.0 /app/client/ \
-#    && cp /usr/lib/x86_64-linux-gnu/libsodium.so.23 /app/client/
 
 COPY --from=pythonBuilder /root/.local /root/.local
 COPY *.py /app/python/

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "DankDitties": {
+      "commandName": "Project",
+      "workingDirectory": "D:\\Harrison\\Documents\\git\\DankDitties"
+    }
+  }
+}
