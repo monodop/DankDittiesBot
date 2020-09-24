@@ -165,6 +165,10 @@ namespace DankDitties
                                         Console.WriteLine("Added " + closestMatch.Title + " to queue");
                                     }
                                 }
+                                else if (text.ToLower() == "what song is this")
+                                {
+                                    _say("I am currently playing " + _currentSong.Title);
+                                }
                             }
                         }
                     }
