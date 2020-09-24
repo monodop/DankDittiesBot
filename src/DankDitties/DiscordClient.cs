@@ -25,6 +25,7 @@ namespace DankDitties
         private IVoiceChannel _currentVoiceChannel;
         private IAudioClient _currentAudioClient;
 
+        private ConcurrentQueue<string> _thingsToSay = new ConcurrentQueue<string>();
         private Process _currentOverlayProcess;
         private Stream _currentOverlayStream;
 
@@ -54,7 +55,7 @@ namespace DankDitties
             if (_voiceAssistantRunners.TryRemove(id, out var tuple))
             {
                 var (runner, _, cts) = tuple;
-                Console.WriteLine("Cancelling user token " + cts.GetHashCode());
+                //Console.WriteLine("Cancelling user token " + cts.GetHashCode());
                 cts.Cancel();
                 await runner;
             }
@@ -66,7 +67,7 @@ namespace DankDitties
                 return;
 
             var cts = new CancellationTokenSource();
-            Console.WriteLine("Creating new cancellation token for " + user.Username + " " + cts.GetHashCode());
+            //Console.WriteLine("Creating new cancellation token for " + user.Username + " " + cts.GetHashCode());
             var runner = Task.Run(() => _voiceAssistantRunner(user, cts.Token));
             if (!_voiceAssistantRunners.TryAdd(user.Id, (runner, user, cts)))
             {
@@ -83,7 +84,7 @@ namespace DankDitties
 
                 if (!_voiceAssistantRunners.ContainsKey(user.Id))
                 {
-                    Console.WriteLine("creating user assistant runner " + user.Username);
+                    //Console.WriteLine("creating user assistant runner " + user.Username);
                     _addVoiceAssistantRunner(user);
                 }
             }
@@ -92,7 +93,7 @@ namespace DankDitties
             {
                 if (!voiceChannel.Users.Contains(user))
                 {
-                    Console.WriteLine("killing user assistant runner " + user.Username);
+                    //Console.WriteLine("killing user assistant runner " + user.Username);
                     await _killVoiceAssistantRunnerAsync(id);
                 }
             }
@@ -100,7 +101,7 @@ namespace DankDitties
 
         private async Task _voiceAssistantRunner(SocketGuildUser user, CancellationToken cancellationToken)
         {
-            Console.WriteLine("Starting runner for " + user.Username);
+            //Console.WriteLine("Starting runner for " + user.Username);
             try
             {
                 while (!cancellationToken.IsCancellationRequested)
@@ -112,8 +113,6 @@ namespace DankDitties
                     try
                     {
                         var data = await _witAiClient.ParseAudioStream(userStream, cancellationToken);
-                        if (user.Username == "monodop")
-                            Console.WriteLine($"{user.Username} finished parsing");
                         if (data != null)
                         {
                             var text = data.Text?.Trim();
@@ -164,7 +163,7 @@ namespace DankDitties
             }
             finally
             {
-                Console.WriteLine("Killing runner for " + user.Username);
+                //Console.WriteLine("Killing runner for " + user.Username);
                 _killVoiceAssistantRunnerAsync(user.Id);
             }
         }
@@ -201,9 +200,23 @@ namespace DankDitties
 
         private void _say(string text)
         {
-            Console.WriteLine("Saying: " + text);
+            Console.WriteLine("Enqueing Say: " + text);
+            _thingsToSay.Enqueue(text);
+
+            if (_currentOverlayProcess == null && _thingsToSay.Count == 1)
+            {
+                Task.Run(() => _sayNext());
+            }
+        }
+
+        private void _sayNext()
+        {
+            if (!_thingsToSay.TryDequeue(out var text))
+                return;
+
             Task.Run(async () =>
             {
+                Console.WriteLine("Saying: " + text);
                 var filename = "tts.mp3";
                 if (Environment.OSVersion.Platform == PlatformID.Win32NT)
                 {
@@ -215,9 +228,6 @@ namespace DankDitties
                     filename = "tts.wav";
                     await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
                 }
-
-                _currentOverlayProcess?.Dispose();
-                _currentOverlayStream?.Dispose();
 
                 _currentOverlayProcess = _createStream(filename);
                 _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
@@ -360,6 +370,9 @@ namespace DankDitties
                                 {
                                     _currentOverlayStream?.Dispose();
                                     _currentOverlayStream = null;
+                                    _currentOverlayProcess?.Dispose();
+                                    _currentOverlayProcess = null;
+                                    _sayNext();
                                 }
                                 else
                                 {

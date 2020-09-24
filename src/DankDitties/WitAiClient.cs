@@ -125,7 +125,7 @@ namespace DankDitties
                     // ignore
                 }
 
-                Console.WriteLine("Reading Completed");
+                //Console.WriteLine("Reading Completed");
                 memoryStream.Seek(0, SeekOrigin.Begin);
                 if (memoryStream.Length == 0)
                     return null;
