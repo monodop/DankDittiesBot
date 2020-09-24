@@ -40,7 +40,7 @@ namespace DankDitties
         public static readonly ulong ServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
         public static readonly ulong ChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
         public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
-        public static readonly string WitAiApiKeyOverride = _getEnv("DISCORD_API_KEY");
+        public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
 
         private static string _getEnv(string name, string defaultValue = null)
         {
