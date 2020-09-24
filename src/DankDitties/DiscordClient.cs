@@ -89,6 +89,12 @@ namespace DankDitties
                                 {
                                     Console.WriteLine(user.Username + ": " + text);
                                     var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
+
+                                    if (text.ToLower().StartsWith("i'm "))
+                                    {
+                                        _say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
+                                    }
+
                                     Console.WriteLine("Confidence: " + playSongIntent?.Confidence * 100);
                                     if (playSongIntent?.Confidence > 0.75 && text.StartsWith("play"))
                                     {
