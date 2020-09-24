@@ -253,6 +253,9 @@ namespace DankDitties
             var author = arg.Author as IGuildUser;
             var voiceChannel = author?.VoiceChannel as SocketVoiceChannel;
 
+            if (voiceChannel.Id != Program.ChannelId)
+                return;
+
             if (arg.Content == "!dd start" && voiceChannel != null)
             {
                 Console.WriteLine("Joining voice channel: " + voiceChannel.Name);
