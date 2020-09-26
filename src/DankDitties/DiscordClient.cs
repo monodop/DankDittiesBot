@@ -22,8 +22,6 @@ namespace DankDitties
 
         private VoiceChannelWorker _voiceChannelWorker;
 
-        private ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)> _voiceAssistantRunners = new ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)>();
-
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig()
@@ -39,148 +37,12 @@ namespace DankDitties
             _metadataManager = metadataManager;
         }
 
-        private async Task _killVoiceAssistantRunnerAsync(ulong id)
-        {
-            if (_voiceAssistantRunners.TryRemove(id, out var tuple))
-            {
-                var (runner, _, cts) = tuple;
-                //Console.WriteLine("Cancelling user token " + cts.GetHashCode());
-                cts.Cancel();
-                await runner;
-            }
-        }
-
-        private bool _canAccessVoiceAssistant(SocketGuildUser user)
-        {
-            if (!Program.EnableVoiceCommands)
-                return false;
-
-            if (user.IsBot)
-                return false;
-
-            if (Program.VoiceCommandRole != null && !user.Roles.Any(r => r.Id == Program.VoiceCommandRole))
-                return false;
-
-            return true;
-        }
-
-        private void _addVoiceAssistantRunner(SocketGuildUser user)
-        {
-            if (!_canAccessVoiceAssistant(user))
-                return;
-
-            var cts = new CancellationTokenSource();
-            //Console.WriteLine("Creating new cancellation token for " + user.Username + " " + cts.GetHashCode());
-            var runner = Task.Run(() => _voiceAssistantRunner(user, cts.Token));
-            if (!_voiceAssistantRunners.TryAdd(user.Id, (runner, user, cts)))
-            {
-                cts.Cancel();
-            }
-        }
-
-        private async Task _refreshVoiceAssistantRunners(SocketVoiceChannel voiceChannel)
-        {
-            foreach (var user in voiceChannel.Users)
-            {
-                if (!_canAccessVoiceAssistant(user))
-                    continue;
-
-                if (!_voiceAssistantRunners.ContainsKey(user.Id))
-                {
-                    //Console.WriteLine("creating user assistant runner " + user.Username);
-                    _addVoiceAssistantRunner(user);
-                }
-            }
-
-            foreach (var (id, (_, user, _)) in _voiceAssistantRunners)
-            {
-                if (!voiceChannel.Users.Contains(user))
-                {
-                    //Console.WriteLine("killing user assistant runner " + user.Username);
-                    await _killVoiceAssistantRunnerAsync(id);
-                }
-            }
-        }
-
-        private async Task _voiceAssistantRunner(SocketGuildUser user, CancellationToken cancellationToken)
-        {
-            //Console.WriteLine("Starting runner for " + user.Username);
-            try
-            {
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    var userStream = user.AudioStream;
-                    if (userStream == null)
-                        return;
-
-                    try
-                    {
-                        var data = await _witAiClient.ParseAudioStream(userStream, cancellationToken);
-                        if (data != null)
-                        {
-                            var text = data.Text?.Trim();
-                            if (!string.IsNullOrWhiteSpace(text))
-                            {
-                                Console.WriteLine(user.Username + ": " + text);
-                                var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
-
-                                if (text.ToLower().StartsWith("i'm "))
-                                {
-                                    _voiceChannelWorker.Say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
-                                }
-                                else if (text.ToLower().StartsWith("play "))
-                                {
-                                    var searchString = text.Substring("play ".Length);
-
-                                    if (searchString == "next")
-                                    {
-                                        _voiceChannelWorker?.TrySkip();
-                                        _voiceChannelWorker.Say("Ok, I am skipping this song");
-                                        continue;
-                                    }
-
-                                    var matches = from post in _metadataManager.Posts
-                                                  where post.IsReady
-                                                  let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
-                                                  select (post, relevance);
-                                    var topMatch = matches.OrderByDescending(m => m.relevance);
-                                    Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
-                                    Console.WriteLine();
-                                    var closestMatch = topMatch.FirstOrDefault().post;
-                                    if (closestMatch != null)
-                                    {
-                                        _voiceChannelWorker.EnqueueSong(closestMatch.Id);
-                                        _voiceChannelWorker.Say("I have added your song, " + closestMatch.Title + " to the queue");
-                                        Console.WriteLine("Added " + closestMatch.Title + " to queue");
-                                    }
-                                }
-                                else if (text.ToLower() == "what song is this")
-                                {
-                                    _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker?.CurrentSong.Title);
-                                }
-                            }
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
-                _voiceChannelWorker.Say("Goodbye, " + user.Nickname ?? user.Username);
-            }
-            finally
-            {
-                //Console.WriteLine("Killing runner for " + user.Username);
-                _killVoiceAssistantRunnerAsync(user.Id);
-            }
-        }
-
         private async Task OnReady()
         {
             var guild = _client.Guilds.FirstOrDefault(g => g.Id == Program.ServerId);
             var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.ChannelId);
 
-            _voiceChannelWorker = new VoiceChannelWorker(voiceChannel, _metadataManager);
+            _voiceChannelWorker = new VoiceChannelWorker(voiceChannel, _metadataManager, _witAiClient);
             _voiceChannelWorker.OnStopped += (s, e) =>
             {
                 _voiceChannelWorker.TryEnsureStarted();

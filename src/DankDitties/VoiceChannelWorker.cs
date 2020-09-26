@@ -16,6 +16,7 @@ namespace DankDitties
     {
         private readonly SocketVoiceChannel _voiceChannel;
         private readonly MetadataManager _metadataManager;
+        private readonly WitAiClient _witAiClient;
         private readonly List<string> _playlist = new List<string>();
         private readonly Random _random = new Random();
 
@@ -27,10 +28,11 @@ namespace DankDitties
         public PostMetadata CurrentSong { get; private set; }
         private bool _shouldSkip;
 
-        public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager)
+        public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, WitAiClient witAiClient)
         {
             _voiceChannel = voiceChannel;
             _metadataManager = metadataManager;
+            _witAiClient = witAiClient;
         }
 
         public bool TrySkip()
@@ -115,6 +117,62 @@ namespace DankDitties
             return posts[nextIndex].DownloadCacheFilename;
         }
 
+        private bool _canAccessVoiceAssistant(SocketGuildUser user)
+        {
+            if (!Program.EnableVoiceCommands)
+                return false;
+
+            if (user.IsBot)
+                return false;
+
+            if (Program.VoiceCommandRole != null && !user.Roles.Any(r => r.Id == Program.VoiceCommandRole))
+                return false;
+
+            return true;
+        }
+
+        private async Task _assistantManager(CancellationToken cancellationToken)
+        {
+            var _assistants = new Dictionary<ulong, VoiceAssistantWorker>();
+
+            while (!cancellationToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var prevIds = _assistants.Keys.ToList();
+                    var users = _voiceChannel.Users.ToDictionary(u => u.Id, u => u);
+                    var newIds = users.Values
+                        .Where(_canAccessVoiceAssistant)
+                        .Select(u => u.Id)
+                        .ToList();
+
+                    var toStart = newIds.Except(prevIds);
+                    var toStop = prevIds.Except(newIds);
+
+                    foreach (var id in toStart)
+                    {
+                        var assistant = new VoiceAssistantWorker(users[id], this, _metadataManager, _witAiClient);
+                        assistant.Start();
+                        _assistants[id] = assistant;
+                    }
+
+                    foreach (var id in toStop)
+                    {
+                        var assistant = _assistants[id];
+                        await assistant.StopAsync();
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+            }
+            var stops = _assistants.Values.Select(a => a.StopAsync());
+            await Task.WhenAll(stops);
+        }
+
         protected override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
             try
@@ -123,6 +181,8 @@ namespace DankDitties
                 var audioClient = await _voiceChannel.ConnectAsync();
 
                 _thingsToSay.Clear();
+
+                _ = Task.Run(() => _assistantManager(cancellationToken));
 
                 //audioClient.StreamCreated += (s, e) =>
                 //{

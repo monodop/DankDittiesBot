@@ -98,9 +98,10 @@ namespace DankDitties
 
             Status = WorkerStatus.Stopping;
 
-            _cancellationTokenSource.Cancel();
+            _cancellationTokenSource?.Cancel();
 
-            await _worker;
+            if (_worker != null)
+                await _worker;
 
             _stopped();
         }
