@@ -22,10 +22,6 @@ namespace DankDitties
 
         private VoiceChannelWorker _voiceChannelWorker;
 
-        private ConcurrentQueue<string> _thingsToSay = new ConcurrentQueue<string>();
-        private Process _currentOverlayProcess;
-        private Stream _currentOverlayStream;
-
         private ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)> _voiceAssistantRunners = new ConcurrentDictionary<ulong, (Task, SocketGuildUser, CancellationTokenSource)>();
 
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
@@ -130,7 +126,7 @@ namespace DankDitties
 
                                 if (text.ToLower().StartsWith("i'm "))
                                 {
-                                    _say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
+                                    _voiceChannelWorker.Say("Hello " + text.Substring("i'm ".Length) + ", I'm Dank Ditties bot.");
                                 }
                                 else if (text.ToLower().StartsWith("play "))
                                 {
@@ -139,7 +135,7 @@ namespace DankDitties
                                     if (searchString == "next")
                                     {
                                         _voiceChannelWorker?.TrySkip();
-                                        _say("Ok, I am skipping this song");
+                                        _voiceChannelWorker.Say("Ok, I am skipping this song");
                                         continue;
                                     }
 
@@ -154,13 +150,13 @@ namespace DankDitties
                                     if (closestMatch != null)
                                     {
                                         _voiceChannelWorker.EnqueueSong(closestMatch.Id);
-                                        _say("I have added your song, " + closestMatch.Title + " to the queue");
+                                        _voiceChannelWorker.Say("I have added your song, " + closestMatch.Title + " to the queue");
                                         Console.WriteLine("Added " + closestMatch.Title + " to queue");
                                     }
                                 }
                                 else if (text.ToLower() == "what song is this")
                                 {
-                                    _say("I am currently playing " + _voiceChannelWorker?.CurrentSong.Title);
+                                    _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker?.CurrentSong.Title);
                                 }
                             }
                         }
@@ -170,7 +166,7 @@ namespace DankDitties
                         Console.WriteLine(e);
                     }
                 }
-                _say("Goodbye, " + user.Nickname ?? user.Username);
+                _voiceChannelWorker.Say("Goodbye, " + user.Nickname ?? user.Username);
             }
             finally
             {
@@ -190,42 +186,6 @@ namespace DankDitties
                 _voiceChannelWorker.TryEnsureStarted();
             };
             _voiceChannelWorker.Start();
-        }
-
-        private void _say(string text)
-        {
-            Console.WriteLine("Enqueing Say: " + text);
-            _thingsToSay.Enqueue(text);
-
-            if (_currentOverlayProcess == null && _thingsToSay.Count == 1)
-            {
-                Task.Run(() => _sayNext());
-            }
-        }
-
-        private void _sayNext()
-        {
-            if (!_thingsToSay.TryDequeue(out var text))
-                return;
-
-            Task.Run(async () =>
-            {
-                Console.WriteLine("Saying: " + text);
-                var filename = "tts.mp3";
-                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
-                {
-                    var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
-                    await Program.Call(Program.PythonExecutable, $"{scriptDir} {filename} \"{text.Replace("\"", "\\\"")}\"");
-                }
-                else
-                {
-                    filename = "tts.wav";
-                    await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
-                }
-
-                _currentOverlayProcess = FFmpeg.CreateReadProcess(filename);
-                _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
-            });
         }
 
         private async Task OnMessageReceived(SocketMessage arg)

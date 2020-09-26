@@ -3,6 +3,8 @@ using Discord.Audio;
 using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -16,6 +18,10 @@ namespace DankDitties
         private readonly MetadataManager _metadataManager;
         private readonly List<string> _playlist = new List<string>();
         private readonly Random _random = new Random();
+
+        private Process _currentOverlayProcess;
+        private Stream _currentOverlayStream;
+        private readonly Queue<string> _thingsToSay = new Queue<string>();
 
         public IEnumerable<string> Playlist => _playlist;
         public PostMetadata CurrentSong { get; private set; }
@@ -35,6 +41,7 @@ namespace DankDitties
             }
 
             Console.WriteLine("Skipping Song");
+            Say("Ok, I am skipping this song");
             _shouldSkip = true;
             return true;
         }
@@ -43,6 +50,42 @@ namespace DankDitties
         {
             // TODO: ensure song exists
             _playlist.Add(songId);
+        }
+
+        public void Say(string text)
+        {
+            Console.WriteLine("Enqueuing Say: " + text);
+            _thingsToSay.Enqueue(text);
+
+            if (_currentOverlayProcess == null && _thingsToSay.Count == 1)
+            {
+                Task.Run(() => _sayNext());
+            }
+        }
+
+        private void _sayNext()
+        {
+            if (!_thingsToSay.TryDequeue(out var text))
+                return;
+
+            Task.Run(async () =>
+            {
+                Console.WriteLine("Saying: " + text);
+                var filename = "tts.mp3";
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
+                    await Program.Call(Program.PythonExecutable, $"{scriptDir} {filename} \"{text.Replace("\"", "\\\"")}\"");
+                }
+                else
+                {
+                    filename = "tts.wav";
+                    await Program.Call("pico2wave", $"-w {filename} -l en-GB \"{text.Replace("\"", "\\\"")}\"");
+                }
+
+                _currentOverlayProcess = FFmpeg.CreateReadProcess(filename);
+                _currentOverlayStream = _currentOverlayProcess.StandardOutput.BaseStream;
+            });
         }
 
         private string _getNext()
@@ -76,10 +119,10 @@ namespace DankDitties
         {
             try
             {
-                //_thingsToSay.Clear();
-
                 Console.WriteLine("Voice Channel Worker Connecting");
                 var audioClient = await _voiceChannel.ConnectAsync();
+
+                _thingsToSay.Clear();
 
                 //audioClient.StreamCreated += (s, e) =>
                 //{
@@ -127,43 +170,39 @@ namespace DankDitties
                                 if (byteCount == 0)
                                     break;
 
-                                //if (_currentOverlayStream != null)
-                                //{
-                                //    cancellationToken.ThrowIfCancellationRequested();
-                                //    var overlayBuffer = new byte[blockSize];
-                                //    var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize, cancellationToken);
-
-                                //    if (overlayByteCount == 0)
-                                //    {
-                                //        _currentOverlayStream?.Dispose();
-                                //        _currentOverlayStream = null;
-                                //        _currentOverlayProcess?.Dispose();
-                                //        _currentOverlayProcess = null;
-                                //        _sayNext();
-                                //    }
-                                //    else
-                                //    {
-                                //        var len = Math.Min(overlayByteCount, byteCount);
-                                //        for (int i = 0; i < len; i += 2)
-                                //        {
-                                //            short b1 = (short)((buffer[i + 1] & 0xff) << 8);
-                                //            short b2 = (short)(buffer[i] & 0xff);
-
-                                //            short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
-                                //            short o2 = (short)(overlayBuffer[i] & 0xff);
-
-                                //            short data = (short)(b1 | b2);
-                                //            short data2 = (short)(o1 | o2);
-                                //            data = (short)((data * (Program.SoundVolume / 100f) * 0.9f) + (data2 * (Program.VoiceAssistantVolume / 100f)));
-
-                                //            buffer[i] = (byte)data;
-                                //            buffer[i + 1] = (byte)(data >> 8);
-                                //        }
-                                //    }
-                                //}
-                                if (false)
+                                if (_currentOverlayStream != null)
                                 {
+                                    cancellationToken.ThrowIfCancellationRequested();
+                                    var overlayBuffer = new byte[blockSize];
+                                    var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize, cancellationToken);
 
+                                    if (overlayByteCount == 0)
+                                    {
+                                        _currentOverlayStream?.Dispose();
+                                        _currentOverlayStream = null;
+                                        _currentOverlayProcess?.Dispose();
+                                        _currentOverlayProcess = null;
+                                        _sayNext();
+                                    }
+                                    else
+                                    {
+                                        var len = Math.Min(overlayByteCount, byteCount);
+                                        for (int i = 0; i < len; i += 2)
+                                        {
+                                            short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                                            short b2 = (short)(buffer[i] & 0xff);
+
+                                            short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
+                                            short o2 = (short)(overlayBuffer[i] & 0xff);
+
+                                            short data = (short)(b1 | b2);
+                                            short data2 = (short)(o1 | o2);
+                                            data = (short)((data * (Program.SoundVolume / 100f) * 0.9f) + (data2 * (Program.VoiceAssistantVolume / 100f)));
+
+                                            buffer[i] = (byte)data;
+                                            buffer[i + 1] = (byte)(data >> 8);
+                                        }
+                                    }
                                 }
                                 else
                                 {
