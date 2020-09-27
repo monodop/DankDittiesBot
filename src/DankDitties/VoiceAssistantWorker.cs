@@ -48,6 +48,7 @@ namespace DankDitties
                         Path.Join(entryDirectory, "alexa_linux.ppn"),
                         Path.Join(entryDirectory, "porcupine_linux.ppn"),
                         Path.Join(entryDirectory, "snowboy_linux.ppn"),
+                        Path.Join(entryDirectory, "dank_ditties_linux.ppn"),
                     };
                 }
 
@@ -89,7 +90,7 @@ namespace DankDitties
                     }
 
                     Console.WriteLine("Wake word detected");
-                    clip.Seek(-picoFrameLength * 2 * (48000 / picoSampleRate), SeekOrigin.Current);
+                    clip.Seek(-picoFrameLength * 6 * (48000 / picoSampleRate), SeekOrigin.Current);
 
                     try
                     {
