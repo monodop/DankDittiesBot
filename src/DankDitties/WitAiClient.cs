@@ -58,6 +58,7 @@ namespace DankDitties
             {
                 var blockSize = 3840;
                 var buffer = new byte[blockSize];
+                var halfBuffer = new byte[blockSize / 2];
 
                 var sampleRate = 48000;
                 var bytesPerSecond = sampleRate * 2;
@@ -106,8 +107,16 @@ namespace DankDitties
                                 stream.ReadAsync(buffer, 0, buffer.Length, shortToken),
                                 waitAndReturn0()
                             );
-                            if (await workaround == 0)
+                            var byteCount = await workaround;
+                            if (byteCount == 0)
                                 continue;
+
+                            for (var j = 0; j < halfBuffer.Length; j += 2)
+                            {
+                                var k = j * 2;
+                                halfBuffer[j] = buffer[k];
+                                halfBuffer[j + 1] = buffer[k + 1];
+                            }
 
                             //Console.WriteLine("ReadAsync Ended");
                             hasReadBlock = true;
