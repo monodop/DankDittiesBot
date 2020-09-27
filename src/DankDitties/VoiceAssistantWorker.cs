@@ -1,7 +1,10 @@
-﻿using Discord.WebSocket;
+﻿using DankDitties.Audio;
+using Discord.WebSocket;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -28,11 +31,80 @@ namespace DankDitties
             Console.WriteLine("Starting voice assistant runner for " + _user.Username);
             try
             {
+                var entryDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+                using var porcupine = new Porcupine(
+                    Path.Join(entryDirectory, "porcupine_params.pv"),
+                    new string[] {
+                        Path.Join(entryDirectory, "picovoice_windows.ppn"),
+                        Path.Join(entryDirectory, "porcupine_windows.ppn"),
+                        Path.Join(entryDirectory, "bumblebee_windows.ppn")
+                    },
+                    new float[] { 0.5f, 0.5f, 0.5f }
+                );
+
+                var userStream = _user.AudioStream;
+                if (userStream == null || _user.Username != "monodop")
+                    return;
+
+                var discordFrameLength = 1920;
+                var discordBufferPos = 0;
+                var discordBufferLength = 0;
+                var discordBuffer = new short[discordFrameLength * 2];
+                var readBuffer = new byte[discordFrameLength * 2];
+
+                var picoFrameLength = porcupine.FrameLength();
+                var picoSampleRate = porcupine.SampleRate();
+                var picoBuffer = new short[picoFrameLength];
+
                 while (!cancellationToken.IsCancellationRequested)
                 {
-                    var userStream = _user.AudioStream;
-                    if (userStream == null)
-                        return;
+                    Console.WriteLine("Waiting for wake word");
+                    while (!cancellationToken.IsCancellationRequested)
+                    {
+                        // Ensure we have enough samples to send to porcupine
+                        while (discordBufferLength < picoFrameLength)
+                        {
+                            if (discordBufferPos > 0)
+                            {
+                                for (int i = 0; i < discordBufferLength; i++)
+                                {
+                                    discordBuffer[i] = discordBuffer[i + discordBufferPos];
+                                }
+                                discordBufferPos = 0;
+                            }
+
+                            var byteCount = await userStream.ReadAsync(readBuffer, 0, readBuffer.Length, cancellationToken);
+
+                            // take one sample, skip 6, because discord samples at 48000 while pico samples at 16000.
+                            // Additionally, in the discord stream, samples alternate between left and right channels,
+                            // but pico expects mono audio
+                            for (int i = 0; i < byteCount; i += 12)
+                            {
+                                // Reverse byte order
+                                short b1 = (short)((readBuffer[i + 1] & 0xff) << 8);
+                                short b2 = (short)(readBuffer[i] & 0xff);
+
+                                discordBuffer[discordBufferPos + discordBufferLength] = (short)(b1 | b2);
+                                discordBufferLength++;
+                            }
+                        }
+
+                        // Take 1000 bytes from the buffer
+                        for (int i = 0; i < picoFrameLength; i++)
+                        {
+                            picoBuffer[i] = (discordBuffer[discordBufferPos + i]);
+                        }
+                        discordBufferPos += picoFrameLength;
+                        discordBufferLength -= picoFrameLength;
+
+                        var status = porcupine.Process(picoBuffer);
+                        if (status != -1)
+                        {
+                            break;
+                        }
+                    }
+
+                    Console.WriteLine("Wake word detected");
 
                     try
                     {
@@ -56,22 +128,23 @@ namespace DankDitties
                                     if (searchString == "next")
                                     {
                                         _voiceChannelWorker?.TrySkip();
-                                        continue;
                                     }
-
-                                    var matches = from post in _metadataManager.Posts
-                                                  where post.IsReady
-                                                  let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
-                                                  select (post, relevance);
-                                    var topMatch = matches.OrderByDescending(m => m.relevance);
-                                    Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
-                                    Console.WriteLine();
-                                    var closestMatch = topMatch.FirstOrDefault().post;
-                                    if (closestMatch != null)
+                                    else
                                     {
-                                        _voiceChannelWorker.EnqueueSong(closestMatch.Id);
-                                        _voiceChannelWorker.Say("I have added your song, " + closestMatch.Title + " to the queue");
-                                        Console.WriteLine("Added " + closestMatch.Title + " to queue");
+                                        var matches = from post in _metadataManager.Posts
+                                                      where post.IsReady
+                                                      let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
+                                                      select (post, relevance);
+                                        var topMatch = matches.OrderByDescending(m => m.relevance);
+                                        Console.WriteLine("matches: \n" + string.Join("\n", topMatch.Take(3).Select(m => $"{m.post.Title}: {m.relevance}")));
+                                        Console.WriteLine();
+                                        var closestMatch = topMatch.FirstOrDefault().post;
+                                        if (closestMatch != null)
+                                        {
+                                            _voiceChannelWorker.EnqueueSong(closestMatch.Id);
+                                            _voiceChannelWorker.Say("I have added your song, " + closestMatch.Title + " to the queue");
+                                            Console.WriteLine("Added " + closestMatch.Title + " to queue");
+                                        }
                                     }
                                 }
                                 else if (text.ToLower() == "what song is this")
