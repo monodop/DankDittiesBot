@@ -163,10 +163,11 @@ namespace DankDitties
                 _ttsTrack = new Track();
                 await _ttsTrack.PrepareAsync();
 
-                await using var mixTrack = new MixedTrack(
-                    _mainTrack.SetVolume(Program.SoundVolume / 100f),
-                    _ttsTrack.SetVolume(Program.VoiceAssistantVolume / 100f)
-                );
+                await using var mainTrack = _mainTrack.SetVolume(Program.SoundVolume / 100f);
+                await mainTrack.PrepareAsync();
+                await using var ttsTrack = _ttsTrack.SetVolume(Program.VoiceAssistantVolume / 100f);
+                await ttsTrack.PrepareAsync();
+                await using var mixTrack = new MixedTrack(mainTrack, ttsTrack);
                 await mixTrack.PrepareAsync();
 
                 while (!cancellationToken.IsCancellationRequested)

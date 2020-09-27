@@ -18,7 +18,7 @@ namespace DankDitties.Audio
         }
 
         protected override Task DoPrepareAsync() => _clip.PrepareAsync();
-        public override async Task<int> ReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
+        protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
             var byteCount = await _clip.ReadAsync(outputBuffer, offset, count, cancellationToken);
             for (int i = offset; i < offset + byteCount; i += 2)
@@ -36,7 +36,11 @@ namespace DankDitties.Audio
 
             return byteCount;
         }
-        public override ValueTask DisposeAsync() => _clip.DisposeAsync();
+        public override async ValueTask DisposeAsync()
+        {
+            await _clip.DisposeAsync();
+            await base.DisposeAsync();
+        }
     }
 
     public static class VolumeClipExtensions

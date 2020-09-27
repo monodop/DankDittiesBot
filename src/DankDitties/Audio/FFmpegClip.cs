@@ -26,7 +26,7 @@ namespace DankDitties.Audio
             return Task.FromResult(0);
         }
 
-        public override async Task<int> ReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
+        protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
             return await _ffmpegStream.ReadAsync(outputBuffer, offset, count, cancellationToken);
         }

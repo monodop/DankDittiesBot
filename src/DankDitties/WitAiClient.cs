@@ -1,4 +1,5 @@
-﻿using Discord.Audio;
+﻿using DankDitties.Audio;
+using Discord.Audio;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -51,81 +52,63 @@ namespace DankDitties
             return JsonConvert.DeserializeObject<dynamic>(responseText);
         }
 
-        public async Task<SpeechResponse> ParseAudioStream(AudioInStream stream, CancellationToken cancellationToken)
+        public async Task<SpeechResponse> ParseAudioStream(Clip clip, CancellationToken cancellationToken)
         {
             var timerToken = cancellationToken;
             try
             {
-                var blockSize = 3840;
-                var buffer = new byte[blockSize];
-                var halfBuffer = new byte[blockSize / 2];
-
-                var sampleRate = 48000;
-                var bytesPerSecond = sampleRate * 2;
-                var sampleDuration = 20;
-                var totalBytes = bytesPerSecond * sampleDuration;
-                var totalBlocks = totalBytes / blockSize;
+                var buffer = new byte[3840];
                 var hasReadBlock = false;
 
                 using var memoryStream = new MemoryStream();
                 try
                 {
-                    for (var i = 0; i < totalBlocks && !timerToken.IsCancellationRequested; i++)
+                    while (!timerToken.IsCancellationRequested)
                     {
-                        while (!timerToken.IsCancellationRequested)
+                        //Console.WriteLine("Loop Start");
+                        CancellationToken newTimerToken = timerToken;
+                        if (!hasReadBlock)
                         {
-                            //Console.WriteLine("Loop Start");
-                            CancellationToken newTimerToken = timerToken;
-                            if (!hasReadBlock)
-                            {
-                                //Console.WriteLine("Init Timer");
-                                // Start a longer timer once the audio has come in so that we don't process more than 10 seconds of audio at a time.
-                                var ctsTimer = new CancellationTokenSource(TimeSpan.FromSeconds(10));
-                                var cts = CancellationTokenSource.CreateLinkedTokenSource(ctsTimer.Token, cancellationToken);
-                                newTimerToken = cts.Token;
-                            }
-
-                            var shortToken = timerToken;
-                            if (hasReadBlock)
-                            {
-                                // If we've already read data, cancel after 0.5 seconds (hopefully they're done speaking) to allow processing of the message immediately
-                                var shortCts = new CancellationTokenSource(TimeSpan.FromSeconds(0.5));
-                                var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(shortCts.Token, timerToken);
-                                shortToken = combinedCts.Token;
-                            }
-
-                            //Console.WriteLine("ReadAsync");
-                            //shortToken.Register(() => Console.WriteLine("Short Token Expired"));
-
-                            async Task<int> waitAndReturn0()
-                            {
-                                await shortToken.WhenCancelled();
-                                throw new OperationCanceledException();
-                            }
-
-                            var workaround = await Task.WhenAny(
-                                stream.ReadAsync(buffer, 0, buffer.Length, shortToken),
-                                waitAndReturn0()
-                            );
-                            var byteCount = await workaround;
-                            if (byteCount == 0)
-                                continue;
-
-                            for (var j = 0; j < halfBuffer.Length; j += 2)
-                            {
-                                var k = j * 2;
-                                halfBuffer[j] = buffer[k];
-                                halfBuffer[j + 1] = buffer[k + 1];
-                            }
-
-                            //Console.WriteLine("ReadAsync Ended");
-                            hasReadBlock = true;
-                            timerToken = newTimerToken;
-                            await memoryStream.WriteAsync(buffer, 0, buffer.Length);
-                            await memoryStream.FlushAsync();
-
-                            //Console.WriteLine("Loop End");
+                            //Console.WriteLine("Init Timer");
+                            // Start a longer timer once the audio has come in so that we don't process more than 10 seconds of audio at a time.
+                            var ctsTimer = new CancellationTokenSource(TimeSpan.FromSeconds(10));
+                            var cts = CancellationTokenSource.CreateLinkedTokenSource(ctsTimer.Token, cancellationToken);
+                            newTimerToken = cts.Token;
                         }
+
+                        var shortToken = timerToken;
+                        if (hasReadBlock)
+                        {
+                            // If we've already read data, cancel after 0.5 seconds (hopefully they're done speaking) to allow processing of the message immediately
+                            var shortCts = new CancellationTokenSource(TimeSpan.FromSeconds(0.5));
+                            var combinedCts = CancellationTokenSource.CreateLinkedTokenSource(shortCts.Token, timerToken);
+                            shortToken = combinedCts.Token;
+                        }
+
+                        //Console.WriteLine("ReadAsync");
+                        //shortToken.Register(() => Console.WriteLine("Short Token Expired"));
+
+                        async Task<int> waitAndReturn0()
+                        {
+                            await shortToken.WhenCancelled();
+                            throw new OperationCanceledException();
+                        }
+
+                        var workaround = await Task.WhenAny(
+                            clip.ReadAsync(buffer, 0, buffer.Length, shortToken),
+                            waitAndReturn0()
+                        );
+                        var byteCount = await workaround;
+                        if (byteCount == 0)
+                            continue;
+
+                        //Console.WriteLine("ReadAsync Ended");
+                        hasReadBlock = true;
+                        timerToken = newTimerToken;
+                        await memoryStream.WriteAsync(buffer, 0, buffer.Length);
+                        await memoryStream.FlushAsync();
+
+                        //Console.WriteLine("Loop End");
                     }
                 }
                 catch (OperationCanceledException)
@@ -146,7 +129,7 @@ namespace DankDitties
                 var uri = _generateUri("speech", new Dictionary<string, string>());
 
                 var content = new StreamContent(memoryStream);
-                content.Headers.TryAddWithoutValidation("Content-Type", "audio/raw;encoding=signed-integer;bits=16;rate=96000;endian=little");
+                content.Headers.TryAddWithoutValidation("Content-Type", "audio/raw;encoding=signed-integer;bits=16;rate=48000;endian=little");
                 content.Headers.TryAddWithoutValidation("Transfer-Encoding", "chunked");
                 var response = await _httpClient.PostAsync(uri, content, cancellationToken);
                 var responseText = await response.Content.ReadAsStringAsync();

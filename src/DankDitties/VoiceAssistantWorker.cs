@@ -61,55 +61,25 @@ namespace DankDitties
                 if (userStream == null)
                     return;
 
-                var discordFrameLength = 1920;
-                var discordBufferPos = 0;
-                var discordBufferLength = 0;
-                var discordBuffer = new short[discordFrameLength * 2];
-                var readBuffer = new byte[discordFrameLength * 2];
-
                 var picoFrameLength = porcupine.FrameLength();
                 var picoSampleRate = porcupine.SampleRate();
                 var picoBuffer = new short[picoFrameLength];
+
+                await using var clip = new StreamClip(userStream).UseMemoryBuffer(3840);
+                await clip.PrepareAsync();
+
+                await using var monoClip = clip.Downsample(96000, 48000);
+                await monoClip.PrepareAsync();
+
+                await using var downsampledClip = monoClip.Downsample(48000, picoSampleRate);
+                await downsampledClip.PrepareAsync();
 
                 while (!cancellationToken.IsCancellationRequested)
                 {
                     Console.WriteLine("Waiting for wake word");
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        // Ensure we have enough samples to send to porcupine
-                        while (discordBufferLength < picoFrameLength)
-                        {
-                            if (discordBufferPos > 0)
-                            {
-                                for (int i = 0; i < discordBufferLength; i++)
-                                {
-                                    discordBuffer[i] = discordBuffer[i + discordBufferPos];
-                                }
-                                discordBufferPos = 0;
-                            }
-
-                            var byteCount = await userStream.ReadAsync(readBuffer, 0, readBuffer.Length, cancellationToken);
-
-                            // take one sample, skip 6, because discord samples at 48000 while pico samples at 16000.
-                            // Additionally, in the discord stream, samples alternate between left and right channels,
-                            // but pico expects mono audio
-                            for (int i = 0; i < byteCount; i += 12)
-                            {
-                                short b1 = (short)((readBuffer[i + 1] & 0xff) << 8);
-                                short b2 = (short)(readBuffer[i] & 0xff);
-
-                                discordBuffer[discordBufferPos + discordBufferLength] = (short)(b1 | b2);
-                                discordBufferLength++;
-                            }
-                        }
-
-                        // Take 1000 bytes from the buffer
-                        for (int i = 0; i < picoFrameLength; i++)
-                        {
-                            picoBuffer[i] = (discordBuffer[discordBufferPos + i]);
-                        }
-                        discordBufferPos += picoFrameLength;
-                        discordBufferLength -= picoFrameLength;
+                        await downsampledClip.ReadAsync(picoBuffer, 0, picoFrameLength, cancellationToken);
 
                         var status = porcupine.Process(picoBuffer);
                         if (status != -1)
@@ -119,10 +89,11 @@ namespace DankDitties
                     }
 
                     Console.WriteLine("Wake word detected");
+                    clip.Seek(-picoFrameLength * 2 * (48000 / picoSampleRate), SeekOrigin.Current);
 
                     try
                     {
-                        var data = await _witAiClient.ParseAudioStream(userStream, cancellationToken);
+                        var data = await _witAiClient.ParseAudioStream(monoClip, cancellationToken);
                         if (data != null)
                         {
                             var text = data.Text?.Trim();
@@ -167,7 +138,8 @@ namespace DankDitties
                                 }
                                 else
                                 {
-                                    _voiceChannelWorker.Say("I'm sorry, I didn't understand that!");
+                                    //_voiceChannelWorker.Say("I'm sorry, I didn't understand that!");
+                                    _voiceChannelWorker.Say(text);
                                 }
                             }
                             else

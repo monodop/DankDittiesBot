@@ -21,10 +21,8 @@ namespace DankDitties.Audio
             return Task.FromResult(0);
         }
 
-        public override async Task<int> ReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
+        protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
-            // TODO: http://www.vttoth.com/CMS/index.php/technical-notes/68
-
             var tasks = _clips.Select(async clip =>
             {
                 var buffer = new byte[count];

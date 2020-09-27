@@ -40,7 +40,7 @@ namespace DankDitties.Audio
             _stream.Seek(0, SeekOrigin.Begin);
         }
 
-        public override Task<int> ReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
+        protected override Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
             return _stream.ReadAsync(outputBuffer, 0, count, cancellationToken);
         }
