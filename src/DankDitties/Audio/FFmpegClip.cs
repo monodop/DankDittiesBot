@@ -11,8 +11,8 @@ namespace DankDitties.Audio
     public class FFmpegClip : Clip
     {
         private readonly string _filename;
-        private Process _ffmpegProcess;
-        private Stream _ffmpegStream;
+        protected Process _ffmpegProcess;
+        protected Stream _ffmpegStream;
 
         public FFmpegClip(string filename)
         {

@@ -73,7 +73,7 @@ namespace DankDitties.Audio
             // Set the current clip to the next clip if necessary
             if (_currentClip == null)
             {
-                _currentClip = _playlist.FirstOrDefault(p => (p.IsReady || p.IsPreparing) && p != _currentClip);
+                _currentClip = _playlist.FirstOrDefault(p => p.IsReady);
             }
 
             if (_currentClip == null)
@@ -86,6 +86,15 @@ namespace DankDitties.Audio
             }
 
             return byteCount;
+        }
+
+        public async override ValueTask DisposeAsync()
+        {
+            foreach (var clip in _playlist)
+            {
+                await clip.DisposeAsync();
+            }
+            await base.DisposeAsync();
         }
     }
 }

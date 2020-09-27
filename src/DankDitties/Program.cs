@@ -56,6 +56,11 @@ namespace DankDitties
             if (DataDir != null)
                 Directory.SetCurrentDirectory(DataDir);
 
+            var audioTmpDir = Path.Join(_audioDir, "tmp");
+            if (Directory.Exists(audioTmpDir))
+                Directory.Delete(audioTmpDir, recursive: true);
+            Directory.CreateDirectory(audioTmpDir);
+
             _secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
             _secrets.DiscordApiKey = DiscordApiKeyOverride ?? _secrets.DiscordApiKey;
             _secrets.WitAiApiKey = WitAiApiKeyOverride ?? _secrets.WitAiApiKey;
