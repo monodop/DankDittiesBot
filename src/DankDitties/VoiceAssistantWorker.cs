@@ -32,14 +32,29 @@ namespace DankDitties
             try
             {
                 var entryDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
-                using var porcupine = new Porcupine(
-                    Path.Join(entryDirectory, "porcupine_params.pv"),
-                    new string[] {
+
+                string[] keywordFiles;
+                if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+                {
+                    keywordFiles = new string[] {
                         Path.Join(entryDirectory, "picovoice_windows.ppn"),
                         Path.Join(entryDirectory, "porcupine_windows.ppn"),
-                        Path.Join(entryDirectory, "bumblebee_windows.ppn")
-                    },
-                    new float[] { 0.5f, 0.5f, 0.5f }
+                        Path.Join(entryDirectory, "bumblebee_windows.ppn"),
+                    };
+                }
+                else
+                {
+                    keywordFiles = new string[] {
+                        Path.Join(entryDirectory, "alexa_linux.ppn"),
+                        Path.Join(entryDirectory, "porcupine_linux.ppn"),
+                        Path.Join(entryDirectory, "snowboy_linux.ppn"),
+                    };
+                }
+
+                using var porcupine = new Porcupine(
+                    Path.Join(entryDirectory, "porcupine_params.pv"),
+                    keywordFiles,
+                    keywordFiles.Select(_ => 0.5f).ToArray()
                 );
 
                 var userStream = _user.AudioStream;

@@ -39,6 +39,7 @@ RUN apt-get update \
         python3
 
 COPY --from=clientBuilder /app/dist /app/client
+COPY src/DankDitties/dependencies/linux /app/client
 
 COPY --from=pythonBuilder /root/.local /root/.local
 COPY *.py /app/python/
