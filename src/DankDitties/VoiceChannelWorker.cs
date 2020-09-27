@@ -135,6 +135,7 @@ namespace DankDitties
         {
             var _assistants = new Dictionary<ulong, VoiceAssistantWorker>();
 
+            IEnumerable<Task<bool>> stops;
             while (!cancellationToken.IsCancellationRequested)
             {
                 try
@@ -156,10 +157,11 @@ namespace DankDitties
                         _assistants[id] = assistant;
                     }
 
-                    foreach (var id in toStop)
+                    stops = toStop.Select(id => _assistants[id].TryEnsureStoppedAsync());
+                    await Task.WhenAll(stops);
+                    foreach (var stop in toStop)
                     {
-                        var assistant = _assistants[id];
-                        await assistant.StopAsync();
+                        _assistants.Remove(stop);
                     }
                 }
                 catch (Exception e)
@@ -169,7 +171,7 @@ namespace DankDitties
 
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
-            var stops = _assistants.Values.Select(a => a.StopAsync());
+            stops = _assistants.Values.Select(a => a.TryEnsureStoppedAsync());
             await Task.WhenAll(stops);
         }
 
