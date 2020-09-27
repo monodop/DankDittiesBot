@@ -3,7 +3,8 @@ secrets.json
 
 out.mp3
 
-audio/
+/audio/
+/data/audio
 
 metadata.json
 

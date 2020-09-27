@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using DankDitties.Audio;
+using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
 using System;
@@ -22,11 +23,11 @@ namespace DankDitties
 
         private Process _currentOverlayProcess;
         private Stream _currentOverlayStream;
+        private Track _mainTrack;
         private readonly Queue<string> _thingsToSay = new Queue<string>();
 
         public IEnumerable<string> Playlist => _playlist;
         public PostMetadata CurrentSong { get; private set; }
-        private bool _shouldSkip;
 
         public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, WitAiClient witAiClient)
         {
@@ -37,15 +38,12 @@ namespace DankDitties
 
         public bool TrySkip()
         {
-            if (_shouldSkip)
+            if (_mainTrack.TrySkip())
             {
-                return false;
+                Say("Ok, I am skipping this song");
+                return true;
             }
-
-            Console.WriteLine("Skipping Song");
-            Say("Ok, I am skipping this song");
-            _shouldSkip = true;
-            return true;
+            return false;
         }
 
         public void EnqueueSong(string songId)
@@ -181,10 +179,35 @@ namespace DankDitties
             {
                 Console.WriteLine("Voice Channel Worker Connecting");
                 var audioClient = await _voiceChannel.ConnectAsync();
+                using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
 
                 _thingsToSay.Clear();
 
                 _ = Task.Run(() => _assistantManager(cancellationToken));
+
+                _mainTrack = new Track();
+                _mainTrack.OnClipCompleted += (s, e) =>
+                {
+                    if (_mainTrack.Playlist.Count == 0)
+                        _mainTrack.Enqueue(new FFmpegClip(_getNext()));
+                };
+                _mainTrack.Enqueue(new FFmpegClip(_getNext()));
+                await _mainTrack.PrepareAsync();
+
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    var blockSize = 2880;
+                    var buffer = new byte[blockSize];
+                    var byteCount = await _mainTrack.ReadAsync(buffer, 0, blockSize, cancellationToken);
+                    if (byteCount == 0)
+                    {
+                        await Task.Delay(TimeSpan.FromMilliseconds(50));
+                        continue;
+                    }
+
+                    cancellationToken.ThrowIfCancellationRequested();
+                    await audioOutStream.WriteAsync(buffer, 0, byteCount, cancellationToken);
+                }
 
                 //audioClient.StreamCreated += (s, e) =>
                 //{
@@ -206,97 +229,96 @@ namespace DankDitties
                 //    return Task.FromResult(0);
                 //};
 
-                while (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        _shouldSkip = false;
-                        var filename = _getNext();
-                        if (filename == null)
-                        {
-                            await Task.Yield();
-                            continue;
-                        }
-                        using var process = FFmpeg.CreateReadProcess(filename);
-                        using var audioInStream = process.StandardOutput.BaseStream;
-                        using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
+                //while (!cancellationToken.IsCancellationRequested)
+                //{
+                //    try
+                //    {
+                //        _shouldSkip = false;
+                //        var filename = _getNext();
+                //        if (filename == null)
+                //        {
+                //            await Task.Yield();
+                //            continue;
+                //        }
+                //        using var process = FFmpeg.CreateReadProcess(filename);
+                //        using var audioInStream = process.StandardOutput.BaseStream;
+                //        using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
 
-                        try
-                        {
-                            while (!process.HasExited && !cancellationToken.IsCancellationRequested && !_shouldSkip)
-                            {
-                                cancellationToken.ThrowIfCancellationRequested();
-                                var blockSize = 2880;
-                                var buffer = new byte[blockSize];
-                                var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize, cancellationToken);
-                                if (byteCount == 0)
-                                    break;
+                //        try
+                //        {
+                //            while (!process.HasExited && !cancellationToken.IsCancellationRequested && !_shouldSkip)
+                //            {
+                //                cancellationToken.ThrowIfCancellationRequested();
+                //                var blockSize = 2880;
+                //                var buffer = new byte[blockSize];
+                //                var byteCount = await audioInStream.ReadAsync(buffer, 0, blockSize, cancellationToken);
+                //                if (byteCount == 0)
+                //                    break;
 
-                                if (_currentOverlayStream != null)
-                                {
-                                    cancellationToken.ThrowIfCancellationRequested();
-                                    var overlayBuffer = new byte[blockSize];
-                                    var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize, cancellationToken);
+                //                if (_currentOverlayStream != null)
+                //                {
+                //                    cancellationToken.ThrowIfCancellationRequested();
+                //                    var overlayBuffer = new byte[blockSize];
+                //                    var overlayByteCount = await _currentOverlayStream.ReadAsync(overlayBuffer, 0, blockSize, cancellationToken);
 
-                                    if (overlayByteCount == 0)
-                                    {
-                                        _currentOverlayStream?.Dispose();
-                                        _currentOverlayStream = null;
-                                        _currentOverlayProcess?.Dispose();
-                                        _currentOverlayProcess = null;
-                                        _sayNext();
-                                    }
-                                    else
-                                    {
-                                        var len = Math.Min(overlayByteCount, byteCount);
-                                        for (int i = 0; i < len; i += 2)
-                                        {
-                                            short b1 = (short)((buffer[i + 1] & 0xff) << 8);
-                                            short b2 = (short)(buffer[i] & 0xff);
+                //                    if (overlayByteCount == 0)
+                //                    {
+                //                        _currentOverlayStream?.Dispose();
+                //                        _currentOverlayStream = null;
+                //                        _currentOverlayProcess?.Dispose();
+                //                        _currentOverlayProcess = null;
+                //                        _sayNext();
+                //                    }
+                //                    else
+                //                    {
+                //                        var len = Math.Min(overlayByteCount, byteCount);
+                //                        for (int i = 0; i < len; i += 2)
+                //                        {
+                //                            short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                //                            short b2 = (short)(buffer[i] & 0xff);
 
-                                            short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
-                                            short o2 = (short)(overlayBuffer[i] & 0xff);
+                //                            short o1 = (short)((overlayBuffer[i + 1] & 0xff) << 8);
+                //                            short o2 = (short)(overlayBuffer[i] & 0xff);
 
-                                            short data = (short)(b1 | b2);
-                                            short data2 = (short)(o1 | o2);
-                                            data = (short)((data * (Program.SoundVolume / 100f) * 0.9f) + (data2 * (Program.VoiceAssistantVolume / 100f)));
+                //                            short data = (short)(b1 | b2);
+                //                            short data2 = (short)(o1 | o2);
+                //                            data = (short)((data * (Program.SoundVolume / 100f) * 0.9f) + (data2 * (Program.VoiceAssistantVolume / 100f)));
 
-                                            buffer[i] = (byte)data;
-                                            buffer[i + 1] = (byte)(data >> 8);
-                                        }
-                                    }
-                                }
-                                else
-                                {
-                                    for (var i = 0; i < byteCount; i += 2)
-                                    {
-                                        short b1 = (short)((buffer[i + 1] & 0xff) << 8);
-                                        short b2 = (short)(buffer[i] & 0xff);
+                //                            buffer[i] = (byte)data;
+                //                            buffer[i + 1] = (byte)(data >> 8);
+                //                        }
+                //                    }
+                //                }
+                //                else
+                //                {
+                //                    for (var i = 0; i < byteCount; i += 2)
+                //                    {
+                //                        short b1 = (short)((buffer[i + 1] & 0xff) << 8);
+                //                        short b2 = (short)(buffer[i] & 0xff);
 
-                                        short data = (short)(b1 | b2);
-                                        data = (short)(data * (Program.SoundVolume / 100f));
+                //                        short data = (short)(b1 | b2);
+                //                        data = (short)(data * (Program.SoundVolume / 100f));
 
-                                        buffer[i] = (byte)data;
-                                        buffer[i + 1] = (byte)(data >> 8);
-                                    }
-                                }
+                //                        buffer[i] = (byte)data;
+                //                        buffer[i + 1] = (byte)(data >> 8);
+                //                    }
+                //                }
 
-                                cancellationToken.ThrowIfCancellationRequested();
-                                await audioOutStream.WriteAsync(buffer, 0, byteCount, cancellationToken);
-                            }
-                        }
-                        finally
-                        {
-                            cancellationToken.ThrowIfCancellationRequested();
-                            await audioOutStream.FlushAsync(cancellationToken);
-                        }
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                    }
-                }
-
+                //                cancellationToken.ThrowIfCancellationRequested();
+                //                await audioOutStream.WriteAsync(buffer, 0, byteCount, cancellationToken);
+                //            }
+                //        }
+                //        finally
+                //        {
+                //            cancellationToken.ThrowIfCancellationRequested();
+                //            await audioOutStream.FlushAsync(cancellationToken);
+                //        }
+                //    }
+                //    catch (Exception e)
+                //    {
+                //        Console.WriteLine(e);
+                //    }
+                //}
             }
             catch (Exception e)
             {
