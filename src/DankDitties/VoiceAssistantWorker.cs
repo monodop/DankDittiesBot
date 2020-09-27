@@ -43,7 +43,7 @@ namespace DankDitties
                 );
 
                 var userStream = _user.AudioStream;
-                if (userStream == null || _user.Username != "monodop")
+                if (userStream == null)
                     return;
 
                 var discordFrameLength = 1920;
@@ -80,7 +80,6 @@ namespace DankDitties
                             // but pico expects mono audio
                             for (int i = 0; i < byteCount; i += 12)
                             {
-                                // Reverse byte order
                                 short b1 = (short)((readBuffer[i + 1] & 0xff) << 8);
                                 short b2 = (short)(readBuffer[i] & 0xff);
 
@@ -151,6 +150,14 @@ namespace DankDitties
                                 {
                                     _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker?.CurrentSong.Title);
                                 }
+                                else
+                                {
+                                    _voiceChannelWorker.Say("I'm sorry, I didn't understand that!");
+                                }
+                            }
+                            else
+                            {
+                                _voiceChannelWorker.Say("I'm sorry, I didn't understand that!");
                             }
                         }
                     }
