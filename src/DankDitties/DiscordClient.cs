@@ -100,6 +100,12 @@ namespace DankDitties
                 _voiceChannelWorker.EnqueueSong(id);
                 arg.Channel.SendMessageAsync("The song has been added to the queue");
             }
+            else if (arg.Content.StartsWith("!dd say "))
+            {
+                var text = arg.Content.Substring("!dd say ".Length);
+
+                _voiceChannelWorker.Say(text);
+            }
         }
 
         public async Task StartAsync()
