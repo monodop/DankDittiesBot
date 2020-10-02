@@ -18,19 +18,27 @@ namespace DankDitties.Audio
             _text = text;
         }
 
+        private string _escapeQuotes(string text) => 
+            text.Replace("\"", "\\\"");
+
         protected override async Task DoPrepareAsync()
         {
             Console.WriteLine("Saying next: " + _text);
-            _filename = Path.Join("audio", "tmp", _guid + ".mp3");
-            if (Environment.OSVersion.Platform == PlatformID.Win32NT)
+            _filename = Path.Join("audio", "tmp", _guid + ".wav");
+            var absPath = Path.Combine(Directory.GetCurrentDirectory(), _filename);
+
+            var exe = Program.DecTalkExecutable;
+            var wd = Program.DecTalkWorkingDirectory;
+            var args = Program.DecTalkArgTemplate
+                .Replace("{{FILENAME}}", "\"" + _escapeQuotes(absPath) + "\"")
+                .Replace("{{TEXT}}", "\"" + _escapeQuotes(_text) + "\"");
+            try
             {
-                var scriptDir = Path.Join(Program.ScriptDir, "tts.py");
-                await Program.Call(Program.PythonExecutable, $"{scriptDir} {_filename} \"{_text.Replace("\"", "\\\"")}\"");
+                await Program.Call(exe, args, wd);
             }
-            else
+            catch (Exception e)
             {
-                _filename = Path.Join(_guid + ".wav");
-                await Program.Call("pico2wave", $"-w {_filename} -l en-GB \"{_text.Replace("\"", "\\\"")}\"");
+                Console.WriteLine(e);
             }
 
             _ffmpegProcess = FFmpeg.CreateReadProcess(_filename);

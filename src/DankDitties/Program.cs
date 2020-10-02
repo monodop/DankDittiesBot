@@ -23,6 +23,9 @@ namespace DankDitties
         private static MetadataManager _metadataManager;
         private static string _audioDir = "audio";
 
+        public static readonly string DecTalkExecutable = _getEnv("DECTALK_EXE", "wine");
+        public static readonly string DecTalkWorkingDirectory = _getEnv("DECTALK_WD", "/app/dectalk");
+        public static readonly string DecTalkArgTemplate = _getEnv("DECTALK_ARG_TEMPLATE", "/app/dectalk/say.exe -pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}");
         public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python.exe");
         public static readonly string ScriptDir = _getEnv("SCRIPT_DIR");
         public static readonly string DataDir = _getEnv("DATA_DIR");
@@ -41,8 +44,8 @@ namespace DankDitties
         public static readonly ulong ChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
         public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
         public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
-        public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "40"));
-        public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "200"));
+        public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
+        public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "150"));
 
         private static string _getEnv(string name, string defaultValue = null)
         {

@@ -2,7 +2,12 @@
   "profiles": {
     "DankDitties": {
       "commandName": "Project",
-      "workingDirectory": "D:\\Harrison\\Documents\\git\\DankDitties"
+      "workingDirectory": "D:\\Harrison\\Documents\\git\\DankDitties",
+      "environmentVariables": {
+        "DECTALK_EXE": "src\\DankDitties\\dependencies\\dectalk\\say.exe",
+        "DECTALK_WD": "src\\DankDitties\\dependencies\\dectalk",
+        "DECTALK_ARG_TEMPLATE": "-pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}"
+      }
     }
   }
 }
