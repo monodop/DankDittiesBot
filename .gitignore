@@ -13,3 +13,5 @@ tts.mp3
 data/tts.wav
 
 metadata.db
+
+data/metadata-log.db

@@ -62,6 +62,7 @@ RUN dos2unix /app/startup.sh \
 
 COPY --from=clientBuilder /app/dist /app/client
 COPY src/DankDitties/dependencies/linux /app/client
+COPY src/DankDitties/dependencies/linux_patches /app/client
 COPY src/DankDitties/dependencies/dectalk /app/dectalk
 
 COPY --from=pythonBuilder /root/.local /root/.local
