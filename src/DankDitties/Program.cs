@@ -26,7 +26,7 @@ namespace DankDitties
         public static readonly string DecTalkExecutable = _getEnv("DECTALK_EXE", "wine");
         public static readonly string DecTalkWorkingDirectory = _getEnv("DECTALK_WD", "/app/dectalk");
         public static readonly string DecTalkArgTemplate = _getEnv("DECTALK_ARG_TEMPLATE", "/app/dectalk/say.exe -pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}");
-        public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python.exe");
+        public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python");
         public static readonly string ScriptDir = _getEnv("SCRIPT_DIR");
         public static readonly string DataDir = _getEnv("DATA_DIR");
         public static readonly bool EnableVoiceCommands = _getEnv("ENABLE_VOICE_COMMANDS", "true") == "true";
@@ -45,7 +45,7 @@ namespace DankDitties
         public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
         public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
         public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
-        public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "150"));
+        public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "200"));
 
         private static string _getEnv(string name, string defaultValue = null)
         {
@@ -68,7 +68,7 @@ namespace DankDitties
             _secrets.DiscordApiKey = DiscordApiKeyOverride ?? _secrets.DiscordApiKey;
             _secrets.WitAiApiKey = WitAiApiKeyOverride ?? _secrets.WitAiApiKey;
 
-            using var metadataManager = new MetadataManager("metadata.json");
+            using var metadataManager = new MetadataManager("metadata.db");
             _metadataManager = metadataManager;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -161,19 +161,7 @@ namespace DankDitties
                 foreach (var d in responseData)
                 {
                     var id = d.id.ToString();
-                    if (!_metadataManager.HasRecord(id))
-                    {
-                        var postMetadata = new PostMetadata()
-                        {
-                            Id = id,
-                            Permalink = d.permalink.ToString(),
-                            Title = d.title.ToString(),
-                            Domain = d.domain.ToString(),
-                            Url = d.url.ToString(),
-                        };
-                        if (_domainAllowList.Contains(postMetadata.Domain))
-                            _metadataManager.AddRecord(id, postMetadata);
-                    }
+                    await _metadataManager.AddRedditPostAsync(id, d.url.ToString());
 
                     offset = d.created_utc.ToString();
                     prevResults++;
@@ -184,35 +172,41 @@ namespace DankDitties
 
         private static async Task _populateUpdatedRedditInfo(CancellationToken cancellationToken)
         {
-            foreach (var postMetadata in _metadataManager.Posts.ToList())
+            var refreshCutoff = DateTime.UtcNow - TimeSpan.FromDays(1);
+            var metadata = await _metadataManager.GetMetadataAsync(m =>
+                (m.LastRefresh == null || m.LastRefresh < refreshCutoff)
+                && m.Type == MetadataType.Reddit
+            );
+            foreach (var m in metadata)
             {
                 if (cancellationToken.IsCancellationRequested)
                     return;
 
                 await Task.Yield();
-                if (postMetadata.IsReviewed)
-                    continue;
 
-                var approved = false;
                 try
                 {
                     var scriptDir = Path.Join(ScriptDir, "get_submission.py");
-                    var json = await Call(PythonExecutable, scriptDir + " " + postMetadata.Id);
+                    var json = await Call(PythonExecutable, scriptDir + " " + m.RedditId);
                     var data = JsonConvert.DeserializeObject<dynamic>(json);
 
-                    if (data.hasAuthor == true)
-                        approved = true;
+                    m.IsApproved = data.isRobotIndexable;
+                    m.IsNsfw = data.nsfw;
+                    m.LinkFlairText = data.linkFlairText?.ToString();
+                    m.Title = data.title.ToString();
+                    m.SubmittedBy = data.author.ToString();
+                    m.Subreddit = data.subreddit.ToString();
                 }
                 catch(Exception e)
                 {
+                    m.IsApproved = false;
                     Console.WriteLine(e);
                 }
+                m.LastRefresh = DateTime.UtcNow;
 
-                postMetadata.IsApproved = approved;
-                postMetadata.IsReviewed = true;
+                await _metadataManager.UpdateAsync(m);
 
-                Console.WriteLine($"Reviewed {postMetadata.Id}: {(approved ? "Approved" : "Denied")}");
-                _metadataManager.Save();
+                Console.WriteLine($"Reviewed {m.Id}: {(m.IsApproved ? "Approved" : "Denied")}");
             }
         }
 
@@ -220,12 +214,31 @@ namespace DankDitties
         {
             await Task.Yield();
 
-            var postMetadata = _metadataManager.Posts.ToList()
-                .Where(p => p.IsReviewed && p.DownloadCacheFilename == null && p.DownloadFailed == false && (p.IsUserRequested || p.IsApproved))
-                .OrderBy(p => p.IsUserRequested ? 0 : 1)
-                .FirstOrDefault();
+            Metadata metadata;
+            try
+            {
+                metadata = await _metadataManager.GetOneMetadataAsync(m =>
+                    m.Type == MetadataType.UserRequested
+                    && m.AudioCacheFilename == null
+                    && m.DownloadFailed == false
+                );
+                if (metadata == null)
+                {
+                    metadata = await _metadataManager.GetOneMetadataAsync(m =>
+                        m.Type == MetadataType.Reddit
+                        && m.IsApproved
+                        && m.AudioCacheFilename == null
+                        && m.DownloadFailed != true
+                    );
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                return;
+            }
 
-            if (postMetadata == null)
+            if (metadata == null)
                 return;
 
             try
@@ -234,18 +247,18 @@ namespace DankDitties
                 if (!Directory.Exists(audioDir))
                     Directory.CreateDirectory(audioDir);
 
-                var scriptDir = Path.Join(ScriptDir, "download.py");
+                var scriptDir = Path.Join(ScriptDir ?? Directory.GetCurrentDirectory(), "download.py");
 
-                await Call(PythonExecutable, scriptDir + " " + postMetadata.Url + " " + postMetadata.Id, audioDir, redirect: false);
+                await Call(PythonExecutable, scriptDir + " " + metadata.Url + " " + metadata.Id, audioDir, redirect: false);
 
-                postMetadata.DownloadCacheFilename = Path.Join(audioDir, postMetadata.Id + ".mp3");
-                _metadataManager.Save();
+                metadata.AudioCacheFilename = Path.Join(audioDir, metadata.Id + ".mp3");
+                await _metadataManager.UpdateAsync(metadata);
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                postMetadata.DownloadFailed = true;
-                _metadataManager.Save();
+                metadata.DownloadFailed = true;
+                await _metadataManager.UpdateAsync(metadata);
             }
         }
 
@@ -254,7 +267,7 @@ namespace DankDitties
             var process = new Process();
             process.StartInfo.UseShellExecute = false;
             process.StartInfo.RedirectStandardOutput = redirect;
-            process.StartInfo.RedirectStandardError = redirect;
+            process.StartInfo.RedirectStandardError = true;
             process.StartInfo.FileName = exe;
             process.StartInfo.Arguments = args;
             process.StartInfo.WorkingDirectory = workingDirectory ?? Directory.GetCurrentDirectory();
@@ -264,8 +277,8 @@ namespace DankDitties
 
             if (redirect) {
                 output = await process.StandardOutput.ReadToEndAsync();
-                stderr = await process.StandardError.ReadToEndAsync();
             }
+            stderr = await process.StandardError.ReadToEndAsync();
             process.WaitForExit();
             if (process.ExitCode > 0)
                 throw new Exception(stderr);

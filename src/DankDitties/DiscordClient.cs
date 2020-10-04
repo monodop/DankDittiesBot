@@ -37,7 +37,7 @@ namespace DankDitties
             _metadataManager = metadataManager;
         }
 
-        private async Task OnReady()
+        private Task OnReady()
         {
             var guild = _client.Guilds.FirstOrDefault(g => g.Id == Program.ServerId);
             var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.ChannelId);
@@ -48,6 +48,7 @@ namespace DankDitties
                 _voiceChannelWorker.TryEnsureStarted();
             };
             _voiceChannelWorker.Start();
+            return Task.FromResult(0);
         }
 
         private async Task OnMessageReceived(SocketMessage arg)
@@ -74,31 +75,18 @@ namespace DankDitties
             else if (arg.Content == "!dd info")
             {
                 var currentSong = _voiceChannelWorker?.CurrentSong;
-                arg.Channel.SendMessageAsync("Now playing " + currentSong?.Title + " - " + currentSong?.Url);
+                _ = arg.Channel.SendMessageAsync("Now playing " + currentSong?.Title + " - " + currentSong?.Url);
             }
             else if (arg.Content.StartsWith("!dd play "))
             {
                 var url = arg.Content.Substring("!dd play ".Length);
 
-                var post = _metadataManager.Posts.FirstOrDefault(p => p.Url == url);
-                var id = post?.Id;
-                if (post == null)
+                _ = Task.Run(async () =>
                 {
-                    id = Guid.NewGuid().ToString();
-                    post = new PostMetadata()
-                    {
-                        Id = id,
-                        Domain = null,
-                        Title = "Ad Hoc Queue'd Video",
-                        IsApproved = false,
-                        IsReviewed = true,
-                        IsUserRequested = true,
-                        Url = url,
-                    };
-                    _metadataManager.AddRecord(id, post);
-                }
-                _voiceChannelWorker.EnqueueSong(id);
-                arg.Channel.SendMessageAsync("The song has been added to the queue");
+                    var post = await _metadataManager.AddUserRequestAsync(url, arg.Author.Username);
+                    _voiceChannelWorker.EnqueueSong(post.Id);
+                    await arg.Channel.SendMessageAsync("The song has been added to the queue");
+                });
             }
             else if (arg.Content.StartsWith("!dd say "))
             {

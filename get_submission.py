@@ -16,7 +16,11 @@ submission = reddit.submission(sys.argv[1])
 data = {
     "id": submission.id,
     "title": submission.title,
-    "hasAuthor": submission.author is not None,
+    "linkFlairText": submission.link_flair_text,
+    "isRobotIndexable": submission.is_robot_indexable,
+    "nsfw": submission.over_18,
+    "author": str(submission.author),
+    "subreddit": str(submission.subreddit),
 }
 j = json.dumps(data, indent=2)
 print(j)

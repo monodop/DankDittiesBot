@@ -117,8 +117,7 @@ namespace DankDitties
                                     }
                                     else
                                     {
-                                        var matches = from post in _metadataManager.Posts
-                                                      where post.IsReady
+                                        var matches = from post in await _metadataManager.GetReadyToPlayMetadataAsync()
                                                       let relevance = FuzzySharp.Fuzz.Ratio(post.Title, searchString)
                                                       select (post, relevance);
                                         var topMatch = matches.OrderByDescending(m => m.relevance);

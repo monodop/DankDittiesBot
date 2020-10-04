@@ -25,7 +25,7 @@ namespace DankDitties
         private Track _ttsTrack;
 
         public IEnumerable<string> Playlist => _playlist;
-        public PostMetadata CurrentSong { get; private set; }
+        public Metadata CurrentSong { get; private set; }
 
         public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, WitAiClient witAiClient)
         {
@@ -56,31 +56,29 @@ namespace DankDitties
             _ttsTrack.Enqueue(new TtsClip(text));
         }
 
-        private string _getNext()
+        private async Task<string> _getNextAsync()
         {
             foreach (var id in _playlist)
             {
-                if (_metadataManager.HasRecord(id))
+                var record = await _metadataManager.GetMetadataAsync(id);
+                if (record != null && record.AudioCacheFilename != null)
                 {
-                    var record = _metadataManager.GetRecord(id);
-                    if (record.DownloadCacheFilename != null)
-                    {
-                        _playlist.Remove(id);
-                        CurrentSong = record;
-                        return record.DownloadCacheFilename;
-                    }
-
-                    Console.WriteLine("An item in the queue was skipped because it has not been downloaded yet");
+                    _playlist.Remove(id);
+                    CurrentSong = record;
+                    return record.AudioCacheFilename;
                 }
+
+                Console.WriteLine("An item in the queue was skipped because it has not been downloaded yet");
             }
 
-            var posts = _metadataManager.Posts.ToList().Where(p => p.IsReady).ToList();
-            if (posts.Count == 0)
+            // TODO: check subreddit
+            var readyToPlay = await _metadataManager.GetReadyToPlayMetadataAsync();
+            if (readyToPlay.Count == 0)
                 return null;
 
-            var nextIndex = _random.Next(posts.Count);
-            CurrentSong = posts[nextIndex];
-            return posts[nextIndex].DownloadCacheFilename;
+            var nextIndex = _random.Next(readyToPlay.Count);
+            CurrentSong = readyToPlay[nextIndex];
+            return readyToPlay[nextIndex].AudioCacheFilename;
         }
 
         private bool _canAccessVoiceAssistant(SocketGuildUser user)
@@ -152,12 +150,12 @@ namespace DankDitties
                 _ = Task.Run(() => _assistantManager(cancellationToken));
 
                 _mainTrack = new Track();
-                _mainTrack.OnClipCompleted += (s, e) =>
+                _mainTrack.OnClipCompleted += async (s, e) =>
                 {
                     if (_mainTrack.Playlist.Count == 0)
-                        _mainTrack.Enqueue(new FFmpegClip(_getNext()));
+                        _mainTrack.Enqueue(new FFmpegClip(await _getNextAsync()));
                 };
-                _mainTrack.Enqueue(new FFmpegClip(_getNext()));
+                _mainTrack.Enqueue(new FFmpegClip(await _getNextAsync()));
                 await _mainTrack.PrepareAsync();
 
                 _ttsTrack = new Track();
