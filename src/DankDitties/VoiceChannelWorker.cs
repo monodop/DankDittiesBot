@@ -1,4 +1,5 @@
 ﻿using DankDitties.Audio;
+using DankDitties.Data;
 using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
@@ -17,6 +18,7 @@ namespace DankDitties
     {
         private readonly SocketVoiceChannel _voiceChannel;
         private readonly MetadataManager _metadataManager;
+        private readonly PlayHistoryManager _playHistoryManager;
         private readonly WitAiClient _witAiClient;
         private readonly List<string> _playlist = new List<string>();
         private readonly Random _random = new Random();
@@ -27,10 +29,11 @@ namespace DankDitties
         public IEnumerable<string> Playlist => _playlist;
         public Metadata CurrentSong { get; private set; }
 
-        public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, WitAiClient witAiClient)
+        public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, PlayHistoryManager playHistoryManager, WitAiClient witAiClient)
         {
             _voiceChannel = voiceChannel;
             _metadataManager = metadataManager;
+            _playHistoryManager = playHistoryManager;
             _witAiClient = witAiClient;
         }
 
@@ -65,6 +68,7 @@ namespace DankDitties
                 {
                     _playlist.Remove(id);
                     CurrentSong = record;
+                    await _playHistoryManager.RecordSongPlay(_voiceChannel.Id, CurrentSong.Id);
                     return record.AudioCacheFilename;
                 }
 
@@ -78,6 +82,7 @@ namespace DankDitties
 
             var nextIndex = _random.Next(readyToPlay.Count);
             CurrentSong = readyToPlay[nextIndex];
+            await _playHistoryManager.RecordSongPlay(_voiceChannel.Id, CurrentSong.Id);
             return readyToPlay[nextIndex].AudioCacheFilename;
         }
 

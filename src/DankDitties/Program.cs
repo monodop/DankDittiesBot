@@ -1,3 +1,5 @@
+using DankDitties.Data;
+using LiteDB.Async;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -40,8 +42,8 @@ namespace DankDitties
                 return null;
             }
         }
-        public static readonly ulong ServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
-        public static readonly ulong ChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
+        public static readonly ulong DiscordServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
+        public static readonly ulong DiscordChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
         public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
         public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
         public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
@@ -68,7 +70,9 @@ namespace DankDitties
             _secrets.DiscordApiKey = DiscordApiKeyOverride ?? _secrets.DiscordApiKey;
             _secrets.WitAiApiKey = WitAiApiKeyOverride ?? _secrets.WitAiApiKey;
 
-            using var metadataManager = new MetadataManager("metadata.db");
+            using var db = new LiteDatabaseAsync($"Filename=metadata.db;Connection=shared");
+            using var metadataManager = new MetadataManager(db);
+            using var playHistoryManager = new PlayHistoryManager(db);
             _metadataManager = metadataManager;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -78,7 +82,7 @@ namespace DankDitties
 
             var aiClient = new WitAiClient(_secrets.WitAiApiKey);
 
-            var client = new DiscordClient(_secrets.DiscordApiKey, aiClient, _metadataManager);
+            var client = new DiscordClient(_secrets.DiscordApiKey, aiClient, _metadataManager, playHistoryManager);
             await client.StartAsync();
 
             Console.CancelKeyPress += (o, e) => cts.Cancel();

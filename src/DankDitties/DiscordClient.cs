@@ -1,4 +1,5 @@
-﻿using Discord;
+﻿using DankDitties.Data;
+using Discord;
 using Discord.Audio;
 using Discord.WebSocket;
 using System;
@@ -16,13 +17,14 @@ namespace DankDitties
     public class DiscordClient
     {
         private readonly DiscordSocketClient _client;
-        private string _apiKey;
+        private readonly string _apiKey;
         private readonly WitAiClient _witAiClient;
         private readonly MetadataManager _metadataManager;
+        private readonly PlayHistoryManager _playHistoryManager;
 
         private VoiceChannelWorker _voiceChannelWorker;
 
-        public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager)
+        public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager, PlayHistoryManager playHistoryManager)
         {
             _client = new DiscordSocketClient(new DiscordSocketConfig()
             {
@@ -35,14 +37,15 @@ namespace DankDitties
             _apiKey = apiKey;
             _witAiClient = witAiClient;
             _metadataManager = metadataManager;
+            _playHistoryManager = playHistoryManager;
         }
 
         private Task OnReady()
         {
-            var guild = _client.Guilds.FirstOrDefault(g => g.Id == Program.ServerId);
-            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.ChannelId);
+            var guild = _client.Guilds.FirstOrDefault(g => g.Id == Program.DiscordServerId);
+            var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.DiscordChannelId);
 
-            _voiceChannelWorker = new VoiceChannelWorker(voiceChannel, _metadataManager, _witAiClient);
+            _voiceChannelWorker = new VoiceChannelWorker(voiceChannel, _metadataManager, _playHistoryManager, _witAiClient);
             _voiceChannelWorker.OnStopped += (s, e) =>
             {
                 _voiceChannelWorker.TryEnsureStarted();
@@ -56,7 +59,7 @@ namespace DankDitties
             var author = arg.Author as IGuildUser;
             var voiceChannel = author?.VoiceChannel as SocketVoiceChannel;
 
-            if (voiceChannel?.Id != Program.ChannelId)
+            if (voiceChannel?.Id != Program.DiscordChannelId)
                 return;
 
             if (arg.Content == "!dd start" && voiceChannel != null)
