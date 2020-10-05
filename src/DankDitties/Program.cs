@@ -7,6 +7,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -48,6 +49,21 @@ namespace DankDitties
         public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
         public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
         public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "200"));
+        public static readonly Dictionary<string, double> FlairMultipliers;
+
+        static Program()
+        {
+            var segments = Regex.Split(_getEnv("FLAIR_MULTIPLIERS", ""), @"(?<!\\);");
+            FlairMultipliers = new Dictionary<string, double>();
+            foreach (var segment in segments)
+            {
+                var eqIndex = segment.LastIndexOf("=");
+                if (eqIndex >= 0)
+                {
+                    FlairMultipliers[segment.Substring(0, eqIndex)] = double.Parse(segment.Substring(eqIndex + 1));
+                }
+            }
+        }
 
         private static string _getEnv(string name, string defaultValue = null)
         {

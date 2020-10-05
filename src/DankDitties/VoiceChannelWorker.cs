@@ -95,6 +95,19 @@ namespace DankDitties
                 flairDenominator = Math.Max(flairDenominator - 1, 1);
             }
 
+            // Update flair biases according to bot configuration
+            foreach (var (flairText, bias) in Program.FlairMultipliers)
+            {
+                if (flairMultipliers.ContainsKey(flairText))
+                {
+                    flairMultipliers[flairText] *= bias;
+                }
+                else
+                {
+                    flairMultipliers[flairText] = bias;
+                }
+            }
+
             // Determine weighting for each song, and add an additional bias against songs that have played recently
             var nextWeight = 1;
             var fallbackWeight = readyToPlay.Count;
