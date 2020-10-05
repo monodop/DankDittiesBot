@@ -80,10 +80,39 @@ namespace DankDitties
             if (readyToPlay.Count == 0)
                 return null;
 
-            var nextIndex = _random.Next(readyToPlay.Count);
-            CurrentSong = readyToPlay[nextIndex];
+            var recentlyPlayed = await _playHistoryManager.GetPlayHistory(h => h.VoiceChannelId == _voiceChannel.Id);
+
+            // Add bias against playing songs with the same flair as another recently played song
+            var flairMultipliers = new Dictionary<string, double>();
+            var flairDenominator = 5;
+            foreach (var history in recentlyPlayed.OrderByDescending(h => h.DateLastPlayed))
+            {
+                var metadata = readyToPlay.FirstOrDefault(m => m.Id == history.MetadataId);
+                if (!string.IsNullOrWhiteSpace(metadata?.LinkFlairText) && !flairMultipliers.ContainsKey(metadata.LinkFlairText))
+                {
+                    flairMultipliers[metadata.LinkFlairText] = 1f / flairDenominator;
+                }
+                flairDenominator = Math.Max(flairDenominator - 1, 1);
+            }
+
+            // Determine weighting for each song, and add an additional bias against songs that have played recently
+            var nextWeight = 1;
+            var fallbackWeight = readyToPlay.Count;
+            var weights = (
+                from metadata in readyToPlay
+                join h in recentlyPlayed on metadata.Id equals h.MetadataId into hGroup
+                from history in hGroup.DefaultIfEmpty()
+                orderby history?.DateLastPlayed ?? DateTime.MinValue descending
+                let multiplier = flairMultipliers.ContainsKey(metadata?.LinkFlairText ?? "") ? flairMultipliers[metadata.LinkFlairText] : 1f
+                let weight = (history != null ? nextWeight++ : fallbackWeight) * multiplier
+                select new { metadata, dateLastPlayed = history?.DateLastPlayed, weight }
+            ).ToList();
+
+            var next = _random.NextWeighted(weights, w => w.weight);
+
+            CurrentSong = next.metadata;
             await _playHistoryManager.RecordSongPlay(_voiceChannel.Id, CurrentSong.Id);
-            return readyToPlay[nextIndex].AudioCacheFilename;
+            return next.metadata.AudioCacheFilename;
         }
 
         private bool _canAccessVoiceAssistant(SocketGuildUser user)

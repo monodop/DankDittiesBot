@@ -1,6 +1,7 @@
 ﻿using LiteDB.Async;
 using System;
 using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -34,6 +35,15 @@ namespace DankDitties.Data
                 DateLastPlayed = DateTime.UtcNow,
             };
             await collection.UpsertAsync(playHistory);
+        }
+
+        public async Task<IList<PlayHistory>> GetPlayHistory(Expression<Func<PlayHistory, bool>> expression)
+        {
+            var collection = await _getPlayHistoryCollection();
+            return await collection
+                .Query()
+                .Where(expression)
+                .ToListAsync();
         }
 
         public void Dispose()
