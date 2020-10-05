@@ -118,10 +118,12 @@ namespace DankDitties
                 orderby history?.DateLastPlayed ?? DateTime.MinValue descending
                 let multiplier = flairMultipliers.ContainsKey(metadata?.LinkFlairText ?? "") ? flairMultipliers[metadata.LinkFlairText] : 1f
                 let weight = (history != null ? nextWeight++ : fallbackWeight) * multiplier
-                select new { metadata, dateLastPlayed = history?.DateLastPlayed, weight }
+                select new { metadata, dateLastPlayed = history?.DateLastPlayed, weight, multiplier }
             ).ToList();
 
             var next = _random.NextWeighted(weights, w => w.weight);
+            Console.WriteLine($"Up next: `{next.metadata.Title}` with weight {next.weight} and multiplier {next.multiplier}. "
+                + $"The song was last played {next.dateLastPlayed?.ToString("o") ?? "never"}");
 
             CurrentSong = next.metadata;
             await _playHistoryManager.RecordSongPlay(_voiceChannel.Id, CurrentSong.Id);
