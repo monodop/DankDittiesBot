@@ -120,10 +120,17 @@ namespace DankDitties
                 let weight = (history != null ? nextWeight++ : fallbackWeight) * multiplier
                 select new { metadata, dateLastPlayed = history?.DateLastPlayed, weight, multiplier }
             ).ToList();
+            var totalWeight = weights.Sum(w => w.weight);
 
             var next = _random.NextWeighted(weights, w => w.weight);
-            Console.WriteLine($"Up next: `{next.metadata.Title}` with weight {next.weight} and multiplier {next.multiplier}. "
-                + $"The song was last played {next.dateLastPlayed?.ToString("o") ?? "never"}");
+            var lastPlayed = "never";
+            if (next.dateLastPlayed != null)
+            {
+                lastPlayed = next.dateLastPlayed?.ToString("r") + " (" + Math.Round((DateTime.UtcNow - next.dateLastPlayed).Value.TotalHours) + " hours ago)";
+            }
+            Console.WriteLine("Flair multipliers: " + string.Join(", ", flairMultipliers.Select((kvp) => kvp.Key + "=" + kvp.Value)));
+            Console.WriteLine($"Up next: `{next.metadata.Title}` with weight {next.weight}/{Math.Round(totalWeight)} and multiplier {next.multiplier}. "
+                + $"The song was last played {lastPlayed}");
 
             CurrentSong = next.metadata;
             await _playHistoryManager.RecordSongPlay(_voiceChannel.Id, CurrentSong.Id);
