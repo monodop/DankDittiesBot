@@ -88,17 +88,7 @@ namespace DankDitties
                         //Console.WriteLine("ReadAsync");
                         //shortToken.Register(() => Console.WriteLine("Short Token Expired"));
 
-                        async Task<int> waitAndReturn0()
-                        {
-                            await shortToken.WhenCancelled();
-                            throw new OperationCanceledException();
-                        }
-
-                        var workaround = await Task.WhenAny(
-                            clip.ReadAsync(buffer, 0, buffer.Length, shortToken),
-                            waitAndReturn0()
-                        );
-                        var byteCount = await workaround;
+                        var byteCount = await clip.ReadAsync(buffer, 0, buffer.Length, shortToken);
                         if (byteCount == 0)
                             continue;
 

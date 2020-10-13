@@ -81,14 +81,26 @@ namespace DankDitties
                     Console.WriteLine("Waiting for wake word");
                     while (!cancellationToken.IsCancellationRequested)
                     {
-                        await downsampledClip.ReadAsync(picoBuffer, 0, picoFrameLength, cancellationToken);
-
-                        var status = porcupine.Process(picoBuffer);
-                        if (status != -1)
+                        try
                         {
-                            break;
+                            var len = await downsampledClip.ReadAsync(picoBuffer, 0, picoFrameLength, cancellationToken);
+                            if (len != picoFrameLength)
+                                continue;
+
+                            var status = porcupine.Process(picoBuffer);
+                            if (status != -1)
+                            {
+                                break;
+                            }
+                        }
+                        catch (OperationCanceledException)
+                        {
+                            Console.WriteLine("Wake word ReadAsync cancelled.");
                         }
                     }
+
+                    if (cancellationToken.IsCancellationRequested)
+                        continue;
 
                     Console.WriteLine("Wake word detected");
                     clip.Seek(-picoFrameLength * 6 * (48000 / picoSampleRate), SeekOrigin.Current);

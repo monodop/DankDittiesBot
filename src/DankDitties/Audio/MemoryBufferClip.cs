@@ -31,9 +31,19 @@ namespace DankDitties.Audio
 
         protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
-            while (_bytesInBuffer < count)
+            async Task<int> waitAndReturn(CancellationToken cancellationToken)
             {
-                var byteCount = await _clip.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken);
+                await cancellationToken.WhenCancelled();
+                throw new OperationCanceledException();
+            }
+
+            while (!cancellationToken.IsCancellationRequested && _bytesInBuffer < count)
+            {
+                var workaround = await Task.WhenAny(
+                    _clip.ReadAsync(_buffer, 0, _buffer.Length, cancellationToken),
+                    waitAndReturn(cancellationToken)
+                );
+                var byteCount = await workaround;
                 if (byteCount == 0)
                     break;
 
@@ -44,6 +54,8 @@ namespace DankDitties.Audio
                 _bufferStream.Seek(current, SeekOrigin.Begin);
                 _bytesInBuffer += byteCount;
             }
+
+            cancellationToken.ThrowIfCancellationRequested();
 
             var bytesToRead = (int)Math.Min(_bytesInBuffer, count);
             _bytesInBuffer -= bytesToRead;
