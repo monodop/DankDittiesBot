@@ -22,7 +22,7 @@ namespace DankDitties
         private readonly MetadataManager _metadataManager;
         private readonly PlayHistoryManager _playHistoryManager;
 
-        private VoiceChannelWorker _voiceChannelWorker;
+        private VoiceChannelWorker? _voiceChannelWorker;
 
         public DiscordClient(string apiKey, WitAiClient witAiClient, MetadataManager metadataManager, PlayHistoryManager playHistoryManager)
         {
@@ -65,15 +65,16 @@ namespace DankDitties
             if (arg.Content == "!dd start" && voiceChannel != null)
             {
                 Console.WriteLine("Joining voice channel: " + voiceChannel.Name);
-                _voiceChannelWorker.TryEnsureStarted();
+                _voiceChannelWorker?.TryEnsureStarted();
             }
             else if (arg.Content == "!dd skip" && voiceChannel != null)
             {
-                _voiceChannelWorker.TrySkip();
+                _voiceChannelWorker?.TrySkip();
             }
             else if (arg.Content == "!dd stop")
             {
-                await _voiceChannelWorker.StopAsync();
+                if (_voiceChannelWorker != null)
+                    await _voiceChannelWorker.StopAsync();
             }
             else if (arg.Content == "!dd info")
             {
@@ -87,7 +88,7 @@ namespace DankDitties
                 _ = Task.Run(async () =>
                 {
                     var post = await _metadataManager.AddUserRequestAsync(url, arg.Author.Username);
-                    _voiceChannelWorker.EnqueueSong(post.Id);
+                    _voiceChannelWorker?.EnqueueSong(post.Id);
                     await arg.Channel.SendMessageAsync("The song has been added to the queue");
                 });
             }
@@ -95,7 +96,7 @@ namespace DankDitties
             {
                 var text = arg.Content.Substring("!dd say ".Length);
 
-                _voiceChannelWorker.Say(text);
+                _voiceChannelWorker?.Say(text);
             }
         }
 

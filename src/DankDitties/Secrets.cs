@@ -6,7 +6,7 @@ namespace DankDitties
 {
     public class Secrets
     {
-        public string DiscordApiKey { get; set; }
-        public string WitAiApiKey { get; set; }
+        public string? DiscordApiKey { get; set; }
+        public string? WitAiApiKey { get; set; }
     }
 }

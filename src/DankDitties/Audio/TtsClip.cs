@@ -11,9 +11,9 @@ namespace DankDitties.Audio
     {
         private readonly string _guid = Guid.NewGuid().ToString();
         private readonly string _text;
-        private string _filename;
+        private string? _filename;
 
-        public TtsClip(string text) : base(null)
+        public TtsClip(string text) : base("")
         {
             _text = text;
         }
@@ -47,7 +47,7 @@ namespace DankDitties.Audio
 
         public override ValueTask DisposeAsync()
         {
-            if (File.Exists(_filename))
+            if (_filename != null && File.Exists(_filename))
             {
                 File.Delete(_filename);
             }

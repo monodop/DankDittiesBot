@@ -1,4 +1,5 @@
-﻿using LiteDB.Async;
+﻿using LiteDB;
+using LiteDB.Async;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
@@ -28,12 +29,7 @@ namespace DankDitties.Data
         public async Task RecordSongPlay(ulong voiceChannelId, string metadataId)
         {
             var collection = await _getPlayHistoryCollection();
-            var playHistory = new PlayHistory()
-            {
-                VoiceChannelId = voiceChannelId,
-                MetadataId = metadataId,
-                DateLastPlayed = DateTime.UtcNow,
-            };
+            var playHistory = new PlayHistory(voiceChannelId, metadataId, DateTime.UtcNow);
             await collection.UpsertAsync(playHistory);
         }
 
@@ -55,7 +51,21 @@ namespace DankDitties.Data
     public class PlayHistory
     {
         public string Id => $"{VoiceChannelId}.{MetadataId}";
-            
+
+        public PlayHistory(ulong voiceChannelId, string metadataId, DateTime dateLastPlayed)
+        {
+            VoiceChannelId = voiceChannelId;
+            MetadataId = metadataId;
+            DateLastPlayed = dateLastPlayed;
+        }
+
+        [BsonCtor]
+        private PlayHistory()
+        {
+            MetadataId = "";
+        }
+
+
         public ulong VoiceChannelId { get; set; }
         public string MetadataId { get; set; }
         public DateTime DateLastPlayed { get; set; }

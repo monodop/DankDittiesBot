@@ -11,10 +11,10 @@ namespace DankDitties.Audio
     {
         public ICollection<Clip> Playlist => _playlist;
         private List<Clip> _playlist = new List<Clip>();
-        private Clip _currentClip;
+        private Clip? _currentClip;
         private bool _shouldSkip;
 
-        public event EventHandler<Clip> OnClipCompleted;
+        public event EventHandler<Clip>? OnClipCompleted;
 
         public Track()
         {
@@ -47,10 +47,14 @@ namespace DankDitties.Audio
         {
             void _complete()
             {
-                _ = _currentClip.DisposeAsync();
-                _playlist.Remove(_currentClip);
-                _currentClip = null;
-                OnClipCompleted?.Invoke(this, _currentClip);
+                var completedClip = _currentClip;
+                if (completedClip != null)
+                {
+                    _ = completedClip.DisposeAsync();
+                    _playlist.Remove(completedClip);
+                    _currentClip = null;
+                    OnClipCompleted?.Invoke(this, completedClip);
+                }
             }
 
             // Check if the current song should be skipped

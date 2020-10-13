@@ -5,6 +5,7 @@ using System.Text;
 using System.Linq;
 using LiteDB.Async;
 using System.Threading.Tasks;
+using LiteDB;
 
 namespace DankDitties.Data
 {
@@ -35,12 +36,9 @@ namespace DankDitties.Data
                 return match;
 
             var collection = await _getMetadataCollection();
-            var metadata = new Metadata()
+            var metadata = new Metadata(MetadataType.Reddit, url)
             {
-                Id = Guid.NewGuid().ToString(),
-                Type = MetadataType.Reddit,
                 RedditId = redditId,
-                Url = url,
             };
 
             await collection.InsertAsync(metadata);
@@ -56,12 +54,9 @@ namespace DankDitties.Data
                 return match;
 
             var collection = await _getMetadataCollection();
-            var metadata = new Metadata()
+            var metadata = new Metadata(MetadataType.UserRequested, url)
             {
-                Id = Guid.NewGuid().ToString(),
-                Type = MetadataType.UserRequested,
                 Title = "Ad Hoc Queue'd Video Submitted by " + submittedBy,
-                Url = url,
                 SubmittedBy = submittedBy,
             };
 
@@ -128,21 +123,35 @@ namespace DankDitties.Data
     {
         public string Id { get; set; }
 
+        public Metadata(MetadataType type, string url)
+        {
+            Id = Guid.NewGuid().ToString();
+            Type = type;
+            Url = url;
+        }
+
+        [BsonCtor]
+        private Metadata()
+        {
+            Id = "";
+            Url = "";
+        }
+
         public MetadataType Type { get; set; }
 
-        public string Title { get; set; }
+        public string? Title { get; set; }
         public string Url { get; set; }
-        public string SubmittedBy { get; set; }
-        public string AudioCacheFilename { get; set; }
+        public string? SubmittedBy { get; set; }
+        public string? AudioCacheFilename { get; set; }
 
         public bool DownloadFailed { get; set; }
         public bool IsApproved { get; set; }
         public DateTime? LastRefresh { get; set; }
 
         // Reddit-Specific info
-        public string RedditId { get; set; }
+        public string? RedditId { get; set; }
         public bool IsNsfw { get; set; }
-        public string LinkFlairText { get; set; }
-        public string Subreddit { get; set; }
+        public string? LinkFlairText { get; set; }
+        public string? Subreddit { get; set; }
     }
 }

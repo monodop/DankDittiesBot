@@ -23,11 +23,11 @@ namespace DankDitties
         private readonly List<string> _playlist = new List<string>();
         private readonly Random _random = new Random();
 
-        private Track _mainTrack;
-        private Track _ttsTrack;
+        private Track? _mainTrack;
+        private Track? _ttsTrack;
 
         public IEnumerable<string> Playlist => _playlist;
-        public Metadata CurrentSong { get; private set; }
+        public Metadata? CurrentSong { get; private set; }
 
         public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, PlayHistoryManager playHistoryManager, WitAiClient witAiClient)
         {
@@ -39,7 +39,7 @@ namespace DankDitties
 
         public bool TrySkip()
         {
-            if (_mainTrack.TrySkip())
+            if (_mainTrack?.TrySkip() == true)
             {
                 Say("Ok, I am skipping this song");
                 return true;
@@ -56,10 +56,10 @@ namespace DankDitties
         public void Say(string text)
         {
             Console.WriteLine("Enqueuing Say: " + text);
-            _ttsTrack.Enqueue(new TtsClip(text));
+            _ttsTrack?.Enqueue(new TtsClip(text));
         }
 
-        private async Task<string> _getNextAsync()
+        private async Task<string?> _getNextAsync()
         {
             foreach (var id in _playlist)
             {
@@ -116,7 +116,7 @@ namespace DankDitties
                 join h in recentlyPlayed on metadata.Id equals h.MetadataId into hGroup
                 from history in hGroup.DefaultIfEmpty()
                 orderby history?.DateLastPlayed ?? DateTime.MinValue descending
-                let multiplier = flairMultipliers.ContainsKey(metadata?.LinkFlairText ?? "") ? flairMultipliers[metadata.LinkFlairText] : 1f
+                let multiplier = flairMultipliers.ContainsKey(metadata?.LinkFlairText ?? "") ? flairMultipliers[metadata.LinkFlairText ?? ""] : 1f
                 let weight = (history != null ? nextWeight++ : fallbackWeight) * multiplier
                 select new { metadata, dateLastPlayed = history?.DateLastPlayed, weight, multiplier }
             ).ToList();
@@ -126,7 +126,7 @@ namespace DankDitties
             var lastPlayed = "never";
             if (next.dateLastPlayed != null)
             {
-                lastPlayed = next.dateLastPlayed?.ToString("r") + " (" + Math.Round((DateTime.UtcNow - next.dateLastPlayed).Value.TotalHours) + " hours ago)";
+                lastPlayed = next.dateLastPlayed?.ToString("r") + " (" + Math.Round((DateTime.UtcNow - next.dateLastPlayed!).Value.TotalHours) + " hours ago)";
             }
             Console.WriteLine("Flair multipliers: " + string.Join(", ", flairMultipliers.Select((kvp) => kvp.Key + "=" + kvp.Value)));
             Console.WriteLine($"Up next: `{next.metadata.Title}` with weight {next.weight}/{Math.Round(totalWeight)} and multiplier {next.multiplier}. "
@@ -209,9 +209,15 @@ namespace DankDitties
                 _mainTrack.OnClipCompleted += async (s, e) =>
                 {
                     if (_mainTrack.Playlist.Count == 0)
-                        _mainTrack.Enqueue(new FFmpegClip(await _getNextAsync()));
+                    {
+                        var next = await _getNextAsync();
+                        if (next != null)
+                            _mainTrack.Enqueue(new FFmpegClip(next));
+                    }
                 };
-                _mainTrack.Enqueue(new FFmpegClip(await _getNextAsync()));
+                var next = await _getNextAsync();
+                if (next != null)
+                    _mainTrack.Enqueue(new FFmpegClip(next));
                 await _mainTrack.PrepareAsync();
 
                 _ttsTrack = new Track();
@@ -252,8 +258,17 @@ namespace DankDitties
 
         public override async ValueTask DisposeAsync()
         {
-            await _ttsTrack.DisposeAsync();
-            await _mainTrack.DisposeAsync();
+            if (_ttsTrack != null)
+            {
+                await _ttsTrack.DisposeAsync();
+                _ttsTrack = null;
+            }
+
+            if (_mainTrack != null)
+            {
+                await _mainTrack.DisposeAsync();
+                _mainTrack = null;
+            }
 
             await base.DisposeAsync();
         }

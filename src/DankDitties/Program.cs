@@ -22,16 +22,15 @@ namespace DankDitties
             "youtu.be",
             "soundcloud.com",
         };
-        private static Secrets _secrets;
-        private static MetadataManager _metadataManager;
+        private static MetadataManager? _metadataManager;
         private static string _audioDir = "audio";
 
         public static readonly string DecTalkExecutable = _getEnv("DECTALK_EXE", "wine");
         public static readonly string DecTalkWorkingDirectory = _getEnv("DECTALK_WD", "/app/dectalk");
         public static readonly string DecTalkArgTemplate = _getEnv("DECTALK_ARG_TEMPLATE", "/app/dectalk/say.exe -pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}");
         public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python");
-        public static readonly string ScriptDir = _getEnv("SCRIPT_DIR");
-        public static readonly string DataDir = _getEnv("DATA_DIR");
+        public static readonly string? ScriptDir = _getEnv("SCRIPT_DIR");
+        public static readonly string? DataDir = _getEnv("DATA_DIR");
         public static readonly bool EnableVoiceCommands = _getEnv("ENABLE_VOICE_COMMANDS", "true") == "true";
         public static ulong? VoiceCommandRole
         {
@@ -45,8 +44,8 @@ namespace DankDitties
         }
         public static readonly ulong DiscordServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
         public static readonly ulong DiscordChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
-        public static readonly string DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
-        public static readonly string WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
+        public static readonly string? DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
+        public static readonly string? WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
         public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
         public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "200"));
         public static readonly Dictionary<string, double> FlairMultipliers;
@@ -65,7 +64,11 @@ namespace DankDitties
             }
         }
 
-        private static string _getEnv(string name, string defaultValue = null)
+        private static string? _getEnv(string name)
+        {
+            return Environment.GetEnvironmentVariable(name);
+        }
+        private static string _getEnv(string name, string defaultValue)
         {
             return Environment.GetEnvironmentVariable(name) ?? defaultValue;
         }
@@ -82,9 +85,9 @@ namespace DankDitties
                 Directory.Delete(audioTmpDir, recursive: true);
             Directory.CreateDirectory(audioTmpDir);
 
-            _secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
-            _secrets.DiscordApiKey = DiscordApiKeyOverride ?? _secrets.DiscordApiKey;
-            _secrets.WitAiApiKey = WitAiApiKeyOverride ?? _secrets.WitAiApiKey;
+            var secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
+            secrets.DiscordApiKey = DiscordApiKeyOverride ?? secrets.DiscordApiKey;
+            secrets.WitAiApiKey = WitAiApiKeyOverride ?? secrets.WitAiApiKey;
 
             using var db = new LiteDatabaseAsync($"Filename=metadata.db;Connection=shared");
             using var metadataManager = new MetadataManager(db);
@@ -96,9 +99,13 @@ namespace DankDitties
             Task.Run(() => _autoPrefetch(cts.Token));
 #pragma warning restore CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-            var aiClient = new WitAiClient(_secrets.WitAiApiKey);
+            if (secrets.WitAiApiKey == null)
+                throw new ArgumentNullException("WitAiApiKey must be provided.");
+            var aiClient = new WitAiClient(secrets.WitAiApiKey);
 
-            var client = new DiscordClient(_secrets.DiscordApiKey, aiClient, _metadataManager, playHistoryManager);
+            if (secrets.DiscordApiKey == null)
+                throw new ArgumentNullException("DiscordApiKey must be provided.");
+            var client = new DiscordClient(secrets.DiscordApiKey, aiClient, _metadataManager, playHistoryManager);
             await client.StartAsync();
 
             Console.CancelKeyPress += (o, e) => cts.Cancel();
@@ -144,7 +151,7 @@ namespace DankDitties
 
         private static async Task _populateBasicRedditInfo()
         {
-            string offset = null;
+            string? offset = null;
             var maxResults = 10000;
             var pageSize = 100;
 
@@ -180,10 +187,10 @@ namespace DankDitties
 
                 foreach (var d in responseData)
                 {
-                    var id = d.id.ToString();
-                    await _metadataManager.AddRedditPostAsync(id, d.url.ToString());
+                    var id = d?.id.ToString();
+                    await _metadataManager?.AddRedditPostAsync(id, d?.url.ToString());
 
-                    offset = d.created_utc.ToString();
+                    offset = d?.created_utc.ToString();
                     prevResults++;
                     totalResults++;
                 }
@@ -193,6 +200,10 @@ namespace DankDitties
         private static async Task _populateUpdatedRedditInfo(CancellationToken cancellationToken)
         {
             var refreshCutoff = DateTime.UtcNow - TimeSpan.FromDays(1);
+
+            if (_metadataManager == null)
+                throw new InvalidOperationException("_metadataManager not set");
+
             var metadata = await _metadataManager.GetMetadataAsync(m =>
                 (m.LastRefresh == null || m.LastRefresh < refreshCutoff)
                 && m.Type == MetadataType.Reddit
@@ -208,7 +219,7 @@ namespace DankDitties
                 {
                     var scriptDir = Path.Join(ScriptDir, "get_submission.py");
                     var json = await Call(PythonExecutable, scriptDir + " " + m.RedditId);
-                    var data = JsonConvert.DeserializeObject<dynamic>(json);
+                    var data = JsonConvert.DeserializeObject<dynamic>(json ?? "{}");
 
                     m.IsApproved = data.isRobotIndexable;
                     m.IsNsfw = data.nsfw;
@@ -237,6 +248,9 @@ namespace DankDitties
             Metadata metadata;
             try
             {
+                if (_metadataManager == null)
+                    throw new InvalidOperationException("_metadataManager not set");
+
                 metadata = await _metadataManager.GetOneMetadataAsync(m =>
                     m.Type == MetadataType.UserRequested
                     && m.AudioCacheFilename == null
@@ -282,7 +296,7 @@ namespace DankDitties
             }
         }
 
-        public static async Task<string> Call(string exe, string args, string workingDirectory = null, bool redirect = true)
+        public static async Task<string?> Call(string exe, string args, string? workingDirectory = null, bool redirect = true)
         {
             var process = new Process();
             process.StartInfo.UseShellExecute = false;
@@ -293,12 +307,11 @@ namespace DankDitties
             process.StartInfo.WorkingDirectory = workingDirectory ?? Directory.GetCurrentDirectory();
             process.Start();
 
-            string output = null, stderr = null;
-
+            string? output = null;
             if (redirect) {
                 output = await process.StandardOutput.ReadToEndAsync();
             }
-            stderr = await process.StandardError.ReadToEndAsync();
+            string stderr = await process.StandardError.ReadToEndAsync();
             process.WaitForExit();
             if (process.ExitCode > 0)
                 throw new Exception(stderr);

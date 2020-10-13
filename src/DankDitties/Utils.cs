@@ -23,8 +23,7 @@ namespace DankDitties
 
             }
 
-            return default;
-
+            throw new Exception("Unable to select an item");
         }
     }
 }

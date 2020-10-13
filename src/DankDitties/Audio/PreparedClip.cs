@@ -15,12 +15,11 @@ namespace DankDitties.Audio
         public PreparedClip(Clip clip)
         {
             _clip = clip;
+            _stream = new MemoryStream();
         }
 
         protected override async Task DoPrepareAsync()
         {
-            _stream = new MemoryStream();
-
             await _clip.PrepareAsync();
 
             var cts = new CancellationTokenSource();

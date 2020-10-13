@@ -52,7 +52,7 @@ namespace DankDitties
             return JsonConvert.DeserializeObject<dynamic>(responseText);
         }
 
-        public async Task<SpeechResponse> ParseAudioStream(Clip clip, CancellationToken cancellationToken)
+        public async Task<SpeechResponse?> ParseAudioStream(Clip clip, CancellationToken cancellationToken)
         {
             var timerToken = cancellationToken;
             try
@@ -150,21 +150,21 @@ namespace DankDitties
 
         public class SpeechResponse
         {
-            public string Text { get; set; }
+            public string? Text { get; set; }
 
-            public Dictionary<string, List<EntityResponse>> Entities { get; set; }
-            public List<IntentResponse> Intents { get; set; }
+            public Dictionary<string, List<EntityResponse>> Entities { get; set; } = new Dictionary<string, List<EntityResponse>>();
+            public List<IntentResponse> Intents { get; set; } = new List<IntentResponse>();
 
             public class IntentResponse
             {
-                public string Name { get; set; }
+                public string? Name { get; set; }
                 public float Confidence { get; set; }
             }
 
             public class EntityResponse
             {
-                public string Role { get; set; }
-                public string Body { get; set; }
+                public string? Role { get; set; }
+                public string? Body { get; set; }
             }
         }
     }

@@ -18,6 +18,7 @@ namespace DankDitties.Audio
         {
             _clip = clip;
             _buffer = new byte[bufferSize];
+            _bufferStream = new MemoryStream();
         }
 
         public void Seek(long offset, SeekOrigin seekOrigin)
@@ -26,7 +27,6 @@ namespace DankDitties.Audio
         protected async override Task DoPrepareAsync()
         {
             await _clip.PrepareAsync();
-            _bufferStream = new MemoryStream();
         }
 
         protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)

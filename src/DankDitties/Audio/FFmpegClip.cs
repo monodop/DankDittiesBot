@@ -11,8 +11,8 @@ namespace DankDitties.Audio
     public class FFmpegClip : Clip
     {
         private readonly string _filename;
-        protected Process _ffmpegProcess;
-        protected Stream _ffmpegStream;
+        protected Process? _ffmpegProcess;
+        protected Stream? _ffmpegStream;
 
         public FFmpegClip(string filename)
         {
@@ -28,13 +28,18 @@ namespace DankDitties.Audio
 
         protected override async Task<int> DoReadAsync(byte[] outputBuffer, int offset, int count, CancellationToken cancellationToken)
         {
+            if (_ffmpegStream == null)
+                throw new InvalidOperationException("FFMpeg stream is null");
             return await _ffmpegStream.ReadAsync(outputBuffer, offset, count, cancellationToken);
         }
 
         public override async ValueTask DisposeAsync()
         {
-            _ffmpegProcess.Dispose();
-            _ffmpegStream.Dispose();
+            _ffmpegStream?.Dispose();
+            _ffmpegProcess?.Dispose();
+
+            _ffmpegProcess = null;
+            _ffmpegStream = null;
 
             await base.DisposeAsync();
         }

@@ -8,17 +8,17 @@ namespace DankDitties
 {
     public abstract class Worker : IAsyncDisposable
     {
+        public WorkerStatus Status { get; private set; }
+        private Task? _worker;
+        private CancellationTokenSource? _cancellationTokenSource;
+
+        public event EventHandler? OnStarted;
+        public event EventHandler? OnStopped;
+
         public Worker()
         {
 
         }
-
-        public WorkerStatus Status { get; private set; }
-        private Task _worker;
-        private CancellationTokenSource _cancellationTokenSource;
-
-        public event EventHandler OnStarted;
-        public event EventHandler OnStopped;
 
         public void Start()
         {

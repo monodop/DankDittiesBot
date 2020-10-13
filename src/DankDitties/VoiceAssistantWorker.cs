@@ -114,7 +114,7 @@ namespace DankDitties
 
                                     if (searchString == "next")
                                     {
-                                        _voiceChannelWorker?.TrySkip();
+                                        _voiceChannelWorker.TrySkip();
                                     }
                                     else
                                     {
@@ -135,7 +135,7 @@ namespace DankDitties
                                 }
                                 else if (text.ToLower() == "what song is this" || text.ToLower() == "what's playing" || text.ToLower() == "song" || text.ToLower() == "song name" || text.ToLower() == "damn son whered you find this")
                                 {
-                                    _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker?.CurrentSong.Title);
+                                    _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker.CurrentSong?.Title);
                                 }
                                 else
                                 {
