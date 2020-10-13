@@ -13,7 +13,7 @@ namespace DankDitties.Audio
             return Process.Start(new ProcessStartInfo
             {
                 FileName = "ffmpeg",
-                Arguments = $"-hide_banner -loglevel panic -i \"{filename}\" -ac 2 -f s16le -ar 48000 pipe:1",
+                Arguments = $"-hide_banner -loglevel panic -i \"{filename}\" -af loudnorm=I=-24:TP=-2:LRA=14 -ac 2 -f s16le -ar 48000 pipe:1",
                 UseShellExecute = false,
                 RedirectStandardOutput = true,
             });
