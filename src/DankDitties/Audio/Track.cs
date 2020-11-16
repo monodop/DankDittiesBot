@@ -14,6 +14,8 @@ namespace DankDitties.Audio
         private Clip? _currentClip;
         private bool _shouldSkip;
 
+        private bool _paused;
+
         public event EventHandler<Clip>? OnClipCompleted;
 
         public Track()
@@ -35,6 +37,28 @@ namespace DankDitties.Audio
 
             Console.WriteLine("Skipping Song");
             _shouldSkip = true;
+            return true;
+        }
+
+        public bool TryPause()
+        {
+            if (_paused)
+            {
+                return false;
+            }
+            Console.WriteLine("Pausing Song");
+            _paused = true;
+            return true;
+        }
+
+        public bool TryResume()
+        {
+            if (!_paused)
+            {
+                return false;
+            }
+            Console.WriteLine("Resume Song");
+            _paused = false;
             return true;
         }
 
@@ -82,6 +106,11 @@ namespace DankDitties.Audio
 
             if (_currentClip == null)
                 return 0;
+
+            if (_paused)
+            {
+                return 0;
+            }
 
             var byteCount = await _currentClip.ReadAsync(outputBuffer, offset, count, cancellationToken);
             if (byteCount == 0)
