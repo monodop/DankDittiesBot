@@ -98,6 +98,14 @@ namespace DankDitties
 
                 _voiceChannelWorker?.Say(text);
             }
+            else if (arg.Content.StartsWith("!dd pause"))
+            {
+                _voiceChannelWorker?.TryPauseMainTrack();
+            }
+            else if (arg.Content.StartsWith("!dd resume"))
+            {
+                _voiceChannelWorker?.TryResumeMainTrack();
+            }
         }
 
         public async Task StartAsync()

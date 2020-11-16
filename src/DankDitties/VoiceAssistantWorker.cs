@@ -149,6 +149,14 @@ namespace DankDitties
                                 {
                                     _voiceChannelWorker.Say("I am currently playing " + _voiceChannelWorker.CurrentSong?.Title);
                                 }
+                                else if (text.ToLower() == "pause")
+                                {
+                                    _voiceChannelWorker.TryPauseMainTrack();
+                                }
+                                else if (text.ToLower() == "resume")
+                                {
+                                    _voiceChannelWorker.TryResumeMainTrack();
+                                }
                                 else
                                 {
                                     //_voiceChannelWorker.Say("I'm sorry, I didn't understand that!");

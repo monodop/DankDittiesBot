@@ -59,6 +59,21 @@ namespace DankDitties
             _ttsTrack?.Enqueue(new TtsClip(text));
         }
 
+        public bool TryPauseMainTrack()
+        {
+            if (_mainTrack?.TryPause() == true)
+            {
+                Say("Ok, I am pausing the songs.");
+                return true;
+            }
+            return false;
+        }
+
+        public bool TryResumeMainTrack()
+        {
+            return _mainTrack?.TryResume() == true;
+        }
+
         private async Task<string?> _getNextAsync()
         {
             foreach (var id in _playlist)
