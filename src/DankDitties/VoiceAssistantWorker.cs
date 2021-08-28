@@ -1,4 +1,4 @@
-﻿using DankDitties.Audio;
+using DankDitties.Audio;
 using DankDitties.Data;
 using Discord.WebSocket;
 using System;
@@ -29,7 +29,7 @@ namespace DankDitties
 
         protected override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
-            Console.WriteLine("Starting voice assistant runner for " + _user.Username);
+            Console.WriteLine("Starting voice assistant runner for " + _user.GetUsername());
             try
             {
                 var entryDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
@@ -113,7 +113,7 @@ namespace DankDitties
                             var text = data.Text?.Trim();
                             if (!string.IsNullOrWhiteSpace(text))
                             {
-                                Console.WriteLine(_user.Username + ": " + text);
+                                Console.WriteLine(_user.GetUsername() + ": " + text);
                                 var playSongIntent = data.Intents.FirstOrDefault(i => i.Name == "play_song");
 
                                 if (text.ToLower().StartsWith("i'm "))
@@ -174,11 +174,11 @@ namespace DankDitties
                         Console.WriteLine(e);
                     }
                 }
-                _voiceChannelWorker.Say("Goodbye, " + _user.Nickname ?? _user.Username);
+                _voiceChannelWorker.Say("Goodbye, " + _user.GetUsername());
             }
             finally
             {
-                Console.WriteLine("Stopping voice assistant runner for " + _user.Username);
+                Console.WriteLine("Stopping voice assistant runner for " + _user.GetUsername());
             }
         }
     }

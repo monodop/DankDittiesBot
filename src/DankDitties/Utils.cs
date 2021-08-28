@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Discord;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,6 +25,13 @@ namespace DankDitties
             }
 
             throw new Exception("Unable to select an item");
+        }
+
+        public static string GetUsername(this IGuildUser user)
+        {
+            if (!string.IsNullOrWhiteSpace(user.Nickname))
+                return user.Nickname;
+            return user.Username;
         }
     }
 }
