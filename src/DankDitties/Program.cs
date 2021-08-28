@@ -86,6 +86,8 @@ namespace DankDitties
             Directory.CreateDirectory(audioTmpDir);
 
             var secrets = JsonConvert.DeserializeObject<Secrets>(File.ReadAllText("secrets.json"));
+            if (secrets == null)
+                throw new Exception("secrets object was null");
             secrets.DiscordApiKey = DiscordApiKeyOverride ?? secrets.DiscordApiKey;
             secrets.WitAiApiKey = WitAiApiKeyOverride ?? secrets.WitAiApiKey;
 
@@ -184,7 +186,10 @@ namespace DankDitties
                 }
 
                 var responseText = await response.Content.ReadAsStringAsync();
-                var responseData = JsonConvert.DeserializeObject<dynamic>(responseText).data;
+                var responseData = JsonConvert.DeserializeObject<dynamic>(responseText)?.data;
+
+                if (responseData == null)
+                    throw new Exception("reddit response data was null");
 
                 foreach (var d in responseData)
                 {
@@ -220,7 +225,7 @@ namespace DankDitties
                 {
                     var scriptDir = Path.Join(ScriptDir, "get_submission.py");
                     var json = await Call(PythonExecutable, scriptDir + " " + m.RedditId);
-                    var data = JsonConvert.DeserializeObject<dynamic>(json ?? "{}");
+                    var data = JsonConvert.DeserializeObject<dynamic>(json ?? "{}") ?? new object(); // TODO: is this right?
 
                     m.IsApproved = data.isRobotIndexable;
                     m.IsNsfw = data.nsfw;

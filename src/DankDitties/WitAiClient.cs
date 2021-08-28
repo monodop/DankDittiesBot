@@ -49,7 +49,10 @@ namespace DankDitties
             var uri = _generateUri("message", data);
             var response = await _httpClient.GetAsync(uri);
             var responseText = await response.Content.ReadAsStringAsync();
-            return JsonConvert.DeserializeObject<dynamic>(responseText);
+            var responseData = JsonConvert.DeserializeObject<dynamic>(responseText);
+            if (responseData == null)
+                throw new Exception("Response data was null");
+            return responseData;
         }
 
         public async Task<SpeechResponse?> ParseAudioStream(Clip clip, CancellationToken cancellationToken)
