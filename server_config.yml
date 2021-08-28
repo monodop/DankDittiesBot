@@ -1,0 +1,38 @@
+roles:
+    secret_council:
+        id: 766150388402749441
+        name: Secret Council
+        position: 0
+        color: C27C0E
+        permissions:
+            view: yes
+            connect: yes
+        membership:
+            - monodop#8543
+            - c4ruso#8795
+
+categories:
+    secret_council:
+        id: 766155724669059083
+        name: Secret Council
+        position: 0
+        permissions:
+            secret_council:
+                view: yes
+                connect: yes
+            everyone:
+                view: no
+                connect: no
+
+channels:
+    magic_council:
+        id: 759246586093764649
+        name: magic-council
+        category: secret-council
+        position: 0
+        sync_permissions: true
+        permissions:
+            secret_council:
+                view: yes
+            everyone:
+                view: no
