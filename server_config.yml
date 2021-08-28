@@ -84,6 +84,7 @@
     id: 528759612036349953
     name: Magic Boi
     color: 206694
+    has_managed_membership: true
     permissions:
       attach_files: true
       read_message_history: true
@@ -115,10 +116,30 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: true
+    membership:
+      - alji2106#8111
+      - Borkforce One#0410
+      - c4ruso#8795
+      - cogg#4662
+      - CPT_RAGEBEARD#2981
+      - darkwingD A N K#9916
+      - dpapi#5655
+      - Dr. Arbitrary#8648
+      - DrKinkyKinkles#0069
+      - jrhemming#8175
+      - Llamanat3r#5981
+      - monodop#8543
+      - monodop2#9712
+      - myself#0915
+      - Primarina#3120
+      - primarina#6032
+      - Raj Kasula#5291
+      - Stevo Killz#7438
   - friendly_id: magic_boifriends
     id: 766152873347383316
     name: Magic BoiFriends
     color: 3498DB
+    has_managed_membership: true
     permissions:
       attach_files: true
       read_message_history: true
@@ -150,6 +171,12 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: true
+    membership:
+      - DevSnekOps#0420
+      - Dianlibra#5095
+      - Kdunndundun#3216
+      - mynameisfatmike#3374
+      - rachel#9261
   - friendly_id: magic_familiars
     id: 766153823118163969
     name: Magic Familiars
@@ -574,6 +601,7 @@
     id: 706344284135358504
     name: Overseer Role
     color: 1F8B4C
+    has_managed_membership: true
     permissions:
       attach_files: true
       read_message_history: true
@@ -605,10 +633,13 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: false
+    membership:
+      - Overseer#5821
   - friendly_id: avrae
     id: 754521948947611649
     name: Avrae
     color: 000000
+    has_managed_membership: true
     permissions:
       attach_files: true
       read_message_history: true
@@ -640,6 +671,8 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: false
+    membership:
+      - Avrae#6944
   - friendly_id: server_booster
     id: 756292725950644327
     name: Server Booster
@@ -749,6 +782,7 @@
     id: 798689247497814047
     name: DankDitties
     color: FFFFFF
+    has_managed_membership: true
     permissions:
       attach_files: false
       read_message_history: true
@@ -780,6 +814,8 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: false
+    membership:
+      - DankDitties#1353
   - friendly_id: splunk_boi
     id: 820340309480308746
     name: Splunk Boi
@@ -819,6 +855,7 @@
     id: 821233881646497813
     name: DankDitties Public
     color: 000000
+    has_managed_membership: true
     permissions:
       attach_files: false
       read_message_history: true
@@ -850,6 +887,8 @@
       view_audit_log: false
       manage_guild: false
       manage_emojis: false
+    membership:
+      - DankDitties Public#9511
   - friendly_id: saltyboi
     id: 824818347115413514
     name: saltyboi
