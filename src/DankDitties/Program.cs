@@ -109,6 +109,7 @@ namespace DankDitties
             await client.StartAsync();
 
             Console.CancelKeyPress += (o, e) => cts.Cancel();
+            AppDomain.CurrentDomain.ProcessExit += (s, ev) => cts.Cancel();
 
             await cts.Token.WhenCancelled();
         }
