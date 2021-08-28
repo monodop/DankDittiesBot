@@ -1,943 +1,7 @@
 ﻿roles:
-  spoilers_the_boys:
-    id: 766155155896008725
-    name: Spoilers_The Boys
-    position: 6
-    color: 000000
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  dankditties_public:
-    id: 821233881646497813
-    name: DankDitties Public
-    position: 3
-    color: 000000
-    permissions:
-      attach_files: false
-      read_message_history: true
-      mention_everyone: false
-      use_external_emojis: false
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  licensed_memer:
-    id: 819347909812027402
-    name: Licensed Memer
-    position: 20
-    color: F1C40F
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  markov_simulator:
-    id: 693907350339452980
-    name: Markov Simulator
-    position: 7
-    color: 000000
-    permissions:
-      attach_files: false
-      read_message_history: true
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: true
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  magic_familiars:
-    id: 766153823118163969
-    name: Magic Familiars
-    position: 22
-    color: 2ECC71
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  avrae:
-    id: 754521948947611649
-    name: Avrae
-    position: 9
-    color: 000000
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: false
-      use_external_emojis: true
-      connect: false
-      speak: false
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: true
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  server_booster:
-    id: 756292725950644327
-    name: Server Booster
-    position: 8
-    color: F47FFF
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  google_boi:
-    id: 745033026366603344
-    name: Google Boi
-    position: 11
-    color: 000000
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  primarina:
-    id: 661836734346166283
-    name: Primarina
-    position: 15
-    color: E91E63
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  dadfucker:
-    id: 783215928506187789
-    name: "\U0001F346Dadfucker\U0001F346"
-    position: 21
-    color: 8230EF
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  patrick_friend:
-    id: 694006022674710599
-    name: patrick friend
-    position: 13
-    color: E91E63
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  creator_hardly_know_er:
-    id: 851517649468915763
-    name: Creator? Hardly know 'er
-    position: 19
-    color: F1C40F
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  jerkison:
-    id: 671906275692642334
-    name: Jerkison
-    position: 14
-    color: E74C3C
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  likespolitics:
-    id: 773234274785689622
-    name: LikesPolitics
-    position: 16
-    color: 000000
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  meme_jail:
-    id: 819348113318739998
-    name: Meme Jail
-    position: 17
-    color: 992D22
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  meme_probation:
-    id: 819348042360684585
-    name: Meme Probation
-    position: 18
-    color: A84300
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  magic_boifriends:
-    id: 766152873347383316
-    name: Magic BoiFriends
-    position: 23
-    color: 3498DB
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: true
-      move_members: true
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: true
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: true
-  dankditties:
-    id: 798689247497814047
-    name: DankDitties
-    position: 5
-    color: FFFFFF
-    permissions:
-      attach_files: false
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: false
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  magic_boi:
-    id: 528759612036349953
-    name: Magic Boi
-    position: 24
-    color: 206694
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: true
-      move_members: true
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: true
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: true
-      administrator: false
-      manage_channels: false
-      kick_members: true
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: true
-  billfire_boi:
-    id: 694014771820757044
-    name: Billfire Boi
-    position: 12
-    color: 206694
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  saltyboi:
-    id: 824818347115413514
-    name: saltyboi
-    position: 2
-    color: 000000
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  overseer_role:
-    id: 706344284135358504
-    name: Overseer Role
-    position: 10
-    color: 1F8B4C
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: true
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  paper_hands:
-    id: 819257859481010256
-    name: "\U0001F450\U0001F9FBPaper Hands\U0001F9FB\U0001F450"
-    position: 25
-    color: FFFFFF
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  splunk_boi:
-    id: 820340309480308746
-    name: Splunk Boi
-    position: 4
-    color: D6680E
-    permissions:
-      attach_files: false
-      read_message_history: false
-      mention_everyone: false
-      use_external_emojis: false
-      connect: false
-      speak: false
-      send_messages: false
-      embed_links: false
-      deafen_members: false
-      move_members: false
-      use_v_a_d: false
-      priority_speaker: false
-      stream: false
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: false
-      add_reactions: false
-      create_instant_invite: false
-      send_t_t_s_messages: false
-      change_nickname: false
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  likes_stocks:
-    id: 837096422825656340
-    name: "\U0001F680 Likes Stocks \U0001F680"
-    position: 1
-    color: 000000
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  everyone:
-    id: 493935564832374795
-    name: '@everyone'
-    color: 000000
-    permissions:
-      attach_files: true
-      read_message_history: true
-      mention_everyone: true
-      use_external_emojis: true
-      connect: true
-      speak: true
-      send_messages: true
-      embed_links: true
-      deafen_members: false
-      move_members: false
-      use_v_a_d: true
-      priority_speaker: false
-      stream: true
-      mute_members: false
-      manage_messages: false
-      manage_webhooks: false
-      manage_roles: false
-      view_channel: true
-      add_reactions: true
-      create_instant_invite: true
-      send_t_t_s_messages: true
-      change_nickname: true
-      manage_nicknames: false
-      ban_members: false
-      administrator: false
-      manage_channels: false
-      kick_members: false
-      view_audit_log: false
-      manage_guild: false
-      manage_emojis: false
-  secret_council:
+  - friendly_id: secret_council
     id: 766150388402749441
     name: Secret Council
-    position: 26
     color: C27C0E
     has_managed_membership: true
     permissions:
@@ -972,132 +36,927 @@
       manage_guild: true
       manage_emojis: true
     membership:
-    - Dr. Arbitrary#8648
-    - dpapi#5655
-    - Primarina#3120
-    - DrKinkyKinkles#0069
-    - cogg#4662
-    - Borkforce One#0410
-    - c4ruso#8795
-    - darkwingD A N K#9916
-    - monodop#8543
+      - Borkforce One#0410
+      - c4ruso#8795
+      - cogg#4662
+      - darkwingD A N K#9916
+      - dpapi#5655
+      - Dr. Arbitrary#8648
+      - DrKinkyKinkles#0069
+      - monodop#8543
+      - Primarina#3120
+  - friendly_id: paper_hands
+    id: 819257859481010256
+    name: "\U0001F450\U0001F9FBPaper Hands\U0001F9FB\U0001F450"
+    color: FFFFFF
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: magic_boi
+    id: 528759612036349953
+    name: Magic Boi
+    color: 206694
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: true
+      move_members: true
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: true
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: true
+      administrator: false
+      manage_channels: false
+      kick_members: true
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: true
+  - friendly_id: magic_boifriends
+    id: 766152873347383316
+    name: Magic BoiFriends
+    color: 3498DB
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: true
+      move_members: true
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: true
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: true
+  - friendly_id: magic_familiars
+    id: 766153823118163969
+    name: Magic Familiars
+    color: 2ECC71
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: dadfucker
+    id: 783215928506187789
+    name: "\U0001F346Dadfucker\U0001F346"
+    color: 8230EF
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: licensed_memer
+    id: 819347909812027402
+    name: Licensed Memer
+    color: F1C40F
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: creator_hardly_know_er
+    id: 851517649468915763
+    name: Creator? Hardly know 'er
+    color: F1C40F
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: meme_probation
+    id: 819348042360684585
+    name: Meme Probation
+    color: A84300
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: meme_jail
+    id: 819348113318739998
+    name: Meme Jail
+    color: 992D22
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: likespolitics
+    id: 773234274785689622
+    name: LikesPolitics
+    color: 000000
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: primarina
+    id: 661836734346166283
+    name: Primarina
+    color: E91E63
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: jerkison
+    id: 671906275692642334
+    name: Jerkison
+    color: E74C3C
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: patrick_friend
+    id: 694006022674710599
+    name: patrick friend
+    color: E91E63
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: billfire_boi
+    id: 694014771820757044
+    name: Billfire Boi
+    color: 206694
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: google_boi
+    id: 745033026366603344
+    name: Google Boi
+    color: 000000
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: overseer_role
+    id: 706344284135358504
+    name: Overseer Role
+    color: 1F8B4C
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: true
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: avrae
+    id: 754521948947611649
+    name: Avrae
+    color: 000000
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: false
+      use_external_emojis: true
+      connect: false
+      speak: false
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: true
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: server_booster
+    id: 756292725950644327
+    name: Server Booster
+    color: F47FFF
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: markov_simulator
+    id: 693907350339452980
+    name: Markov Simulator
+    color: 000000
+    permissions:
+      attach_files: false
+      read_message_history: true
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: true
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: spoilers_the_boys
+    id: 766155155896008725
+    name: Spoilers_The Boys
+    color: 000000
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: dankditties
+    id: 798689247497814047
+    name: DankDitties
+    color: FFFFFF
+    permissions:
+      attach_files: false
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: false
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: splunk_boi
+    id: 820340309480308746
+    name: Splunk Boi
+    color: D6680E
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: false
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: dankditties_public
+    id: 821233881646497813
+    name: DankDitties Public
+    color: 000000
+    permissions:
+      attach_files: false
+      read_message_history: true
+      mention_everyone: false
+      use_external_emojis: false
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: saltyboi
+    id: 824818347115413514
+    name: saltyboi
+    color: 000000
+    permissions:
+      attach_files: false
+      read_message_history: false
+      mention_everyone: false
+      use_external_emojis: false
+      connect: false
+      speak: false
+      send_messages: false
+      embed_links: false
+      deafen_members: false
+      move_members: false
+      use_v_a_d: false
+      priority_speaker: false
+      stream: false
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: false
+      create_instant_invite: false
+      send_t_t_s_messages: false
+      change_nickname: false
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: _likes_stocks_
+    id: 837096422825656340
+    name: "\U0001F680 Likes Stocks \U0001F680"
+    color: 000000
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
+  - friendly_id: everyone
+    id: 493935564832374795
+    name: '@everyone'
+    color: 000000
+    permissions:
+      attach_files: true
+      read_message_history: true
+      mention_everyone: true
+      use_external_emojis: true
+      connect: true
+      speak: true
+      send_messages: true
+      embed_links: true
+      deafen_members: false
+      move_members: false
+      use_v_a_d: true
+      priority_speaker: false
+      stream: true
+      mute_members: false
+      manage_messages: false
+      manage_webhooks: false
+      manage_roles: false
+      view_channel: true
+      add_reactions: true
+      create_instant_invite: true
+      send_t_t_s_messages: true
+      change_nickname: true
+      manage_nicknames: false
+      ban_members: false
+      administrator: false
+      manage_channels: false
+      kick_members: false
+      view_audit_log: false
+      manage_guild: false
+      manage_emojis: false
 categories:
-  dnd:
-    id: 766160986478477332
-    name: DND
-    position: 7
-    role_permissions:
-      everyone:
-        connect: false
-        view_channel: false
-      magic_boi:
-        connect: true
-        view_channel: true
-      avrae:
-        view_channel: true
-      secret_council:
-        connect: true
-        view_channel: true
-      magic_boifriends:
-        connect: true
-        view_channel: true
-      magic_familiars:
-        connect: true
-        view_channel: true
-    channels:
-      dnd_voice:
-        id: 523322503469465603
-        name: DND
-        category: dnd
-        position: 2
-      magic_dnd:
-        id: 687880602414088233
-        name: magic-dnd
-        category: dnd
-        position: 23
-  game_room_103:
-    id: 766161813338456095
-    name: Game Room 103
-    position: 8
-    role_permissions:
-      everyone:
-        connect: false
-        view_channel: false
-      magic_boi:
-        connect: true
-        view_channel: true
-      overseer_role:
-        connect: true
-        view_channel: true
-      secret_council:
-        connect: true
-        view_channel: true
-      magic_boifriends:
-        connect: true
-        view_channel: true
-      magic_familiars:
-        read_message_history: false
-        connect: true
-        view_channel: true
-    channels:
-      room_103:
-        id: 766160608038092800
-        name: room-103
-        category: game_room_103
-        position: 24
-      room_103_voice:
-        id: 766162168592465920
-        name: Room 103
-        category: game_room_103
-        position: 3
-  magic_bois_only:
-    id: 766156230052806666
-    name: Magic Bois Only!
-    position: 10
-    role_permissions:
-      everyone:
-        connect: false
-        view_channel: false
-      magic_boi:
-        connect: true
-        view_channel: true
-      secret_council:
-        connect: true
-        view_channel: true
-  spoilers:
-    id: 766163169428373555
-    name: Spoilers
-    position: 3
-    role_permissions:
-      everyone:
-        connect: false
-        view_channel: false
-      magic_boi:
-        connect: true
-        view_channel: true
-      secret_council:
-        connect: true
-        view_channel: true
-      magic_boifriends:
-        connect: true
-        view_channel: true
-      magic_familiars:
-        connect: true
-        view_channel: true
-    channels:
-      directory:
-        id: 766163618236334130
-        name: directory
-        category: spoilers
-        position: 11
-        role_permissions:
-          magic_boi:
-            send_messages: false
-          magic_boifriends:
-            send_messages: false
-          magic_familiars:
-            send_messages: false
-  secret_council:
+  - friendly_id: secret_council
     id: 766155724669059083
     name: Secret Council
     role_permissions:
@@ -1108,77 +967,13 @@ categories:
         connect: true
         view_channel: true
     channels:
-      magic_council:
+      - friendly_id: magic_council
         id: 759246586093764649
         name: magic-council
         category: secret_council
-  other:
-    id: 737303651869261964
-    name: other
-    position: 9
-    role_permissions:
-      everyone:
-        attach_files: false
-        read_message_history: false
-        mention_everyone: false
-        use_external_emojis: false
-        connect: false
-        speak: false
-        send_messages: false
-        embed_links: false
-        deafen_members: false
-        move_members: false
-        use_v_a_d: false
-        priority_speaker: false
-        stream: false
-        mute_members: false
-        manage_messages: false
-        manage_webhooks: false
-        manage_roles: false
-        view_channel: false
-        add_reactions: false
-        manage_channel: false
-        create_instant_invite: false
-        send_t_t_s_messages: false
-    channels:
-      mystery_bricks:
-        id: 717428996106878997
-        name: mystery-bricks
-        category: other
-        position: 27
-        role_permissions:
-          magic_boi:
-            view_channel: true
-          secret_council:
-            view_channel: true
-      apocalyptia_ii_electric_boogaloo:
-        id: 717744150665232394
-        name: apocalyptia-ii-electric-boogaloo
-        category: other
-        position: 26
-        role_permissions:
-          magic_boi:
-            view_channel: true
-          secret_council:
-            view_channel: true
-      overseer_bot_dev:
-        id: 525870830153105419
-        name: overseer-bot-dev
-        category: other
-        position: 25
-        role_permissions:
-          magic_boi:
-            view_channel: true
-          secret_council:
-            view_channel: true
-          magic_boifriends:
-            view_channel: true
-          magic_familiars:
-            view_channel: true
-  magic_bois_and_boifriends_only:
+  - friendly_id: magic_bois_and_boifriends_only
     id: 766157135674474507
     name: Magic Bois and BoiFriends Only!!
-    position: 1
     role_permissions:
       everyone:
         connect: false
@@ -1196,43 +991,36 @@ categories:
         connect: true
         view_channel: true
     channels:
-      adult_content:
-        id: 601471681785102339
-        name: adult-content
-        category: magic_bois_and_boifriends_only
-        position: 3
-      announcements:
+      - friendly_id: announcements
         id: 532284579709452299
         name: announcements
         category: magic_bois_and_boifriends_only
-        position: 1
-      cyberpunk_2077:
-        id: 786360907654627348
-        name: cyberpunk-2077
-        category: magic_bois_and_boifriends_only
-        position: 5
-      mystery_death:
-        id: 879940103533916170
-        name: mystery-death
-        category: magic_bois_and_boifriends_only
-        position: 40
-      judgement_dick:
+      - friendly_id: judgement_dick
         id: 771211491076079628
         name: judgement-dick
         category: magic_bois_and_boifriends_only
-        position: 2
         role_permissions:
           likespolitics:
             view_channel: true
-      events:
+      - friendly_id: adult_content
+        id: 601471681785102339
+        name: adult-content
+        category: magic_bois_and_boifriends_only
+      - friendly_id: events
         id: 493935564832374799
         name: events
         category: magic_bois_and_boifriends_only
-        position: 4
-  friends_and_familiars:
+      - friendly_id: cyberpunk_2077
+        id: 786360907654627348
+        name: cyberpunk-2077
+        category: magic_bois_and_boifriends_only
+      - friendly_id: mystery_death
+        id: 879940103533916170
+        name: mystery-death
+        category: magic_bois_and_boifriends_only
+  - friendly_id: friends_and_familiars
     id: 737729966690533436
     name: Friends and Familiars
-    position: 2
     role_permissions:
       everyone:
         connect: false
@@ -1252,56 +1040,60 @@ categories:
         connect: true
         view_channel: true
     channels:
-      main_nsfwfh:
-        id: 532713792279281684
-        name: main-nsfwfh
-        category: friends_and_familiars
-        position: 8
-      dank_ditties:
-        id: 756392078849605682
-        name: dank-ditties
-        category: friends_and_familiars
-        position: 9
-      games:
-        id: 523321826630303756
-        name: games
-        category: friends_and_familiars
-        position: 10
-      main:
+      - friendly_id: main
         id: 766157890209185816
         name: main
         category: friends_and_familiars
-        position: 6
-      programming:
+      - friendly_id: programming
         id: 583064182761586703
         name: programming
         category: friends_and_familiars
-        position: 7
-  role_channels:
-    id: 837095945727901696
-    name: ROLE CHANNELS
-    position: 6
+      - friendly_id: main_nsfwfh
+        id: 532713792279281684
+        name: main-nsfwfh
+        category: friends_and_familiars
+      - friendly_id: dank_ditties
+        id: 756392078849605682
+        name: dank-ditties
+        category: friends_and_familiars
+      - friendly_id: games
+        id: 523321826630303756
+        name: games
+        category: friends_and_familiars
+  - friendly_id: spoilers
+    id: 766163169428373555
+    name: Spoilers
+    role_permissions:
+      everyone:
+        connect: false
+        view_channel: false
+      magic_boi:
+        connect: true
+        view_channel: true
+      secret_council:
+        connect: true
+        view_channel: true
+      magic_boifriends:
+        connect: true
+        view_channel: true
+      magic_familiars:
+        connect: true
+        view_channel: true
     channels:
-      stonks:
-        id: 837096151571234867
-        name: stonks
-        category: role_channels
-        position: 22
+      - friendly_id: directory
+        id: 766163618236334130
+        name: directory
+        category: spoilers
         role_permissions:
-          everyone:
-            view_channel: false
           magic_boi:
-            view_channel: true
-          overseer_role:
-            view_channel: true
+            send_messages: false
           magic_boifriends:
-            view_channel: true
-          likes_stocks:
-            view_channel: true
-  virtual_office:
+            send_messages: false
+          magic_familiars:
+            send_messages: false
+  - friendly_id: virtual_office
     id: 766161313365753867
     name: Virtual Office
-    position: 4
     role_permissions:
       everyone:
         connect: false
@@ -1322,7 +1114,7 @@ categories:
         connect: true
         view_channel: true
     channels:
-      dank_ditties_virtual_office_voice:
+      - friendly_id: dank_ditties_virtual_office_voice
         id: 493935564832374803
         name: Dank Ditties™ Virtual Office
         category: virtual_office
@@ -1333,11 +1125,10 @@ categories:
             connect: true
             speak: true
             view_channel: true
-      virtual_office_chat:
+      - friendly_id: virtual_office_chat
         id: 766160274213961778
         name: virtual-office-chat
         category: virtual_office
-        position: 12
         role_permissions:
           dankditties:
             read_message_history: true
@@ -1346,16 +1137,157 @@ categories:
             add_reactions: true
           dankditties_public:
             view_channel: true
-  community:
+  - friendly_id: community
     id: 766158680886083595
     name: Community
-    position: 5
     channels:
-      memes:
+      - friendly_id: townsquare_voice
+        id: 758603339650564106
+        name: townsquare
+        category: community
+        role_permissions:
+          everyone:
+            attach_files: false
+            read_message_history: false
+            mention_everyone: false
+            use_external_emojis: false
+            connect: true
+            speak: true
+            send_messages: false
+            embed_links: false
+            deafen_members: false
+            move_members: false
+            use_v_a_d: true
+            priority_speaker: false
+            stream: true
+            mute_members: false
+            manage_messages: false
+            manage_webhooks: false
+            manage_roles: false
+            view_channel: true
+            add_reactions: false
+            manage_channel: false
+            create_instant_invite: false
+            send_t_t_s_messages: false
+          magic_boi:
+            connect: true
+          secret_council:
+            connect: true
+      - friendly_id: welcome
+        id: 763906732937707580
+        name: welcome
+        category: community
+        role_permissions:
+          everyone:
+            attach_files: false
+            read_message_history: true
+            mention_everyone: false
+            use_external_emojis: true
+            connect: false
+            speak: false
+            send_messages: false
+            embed_links: false
+            deafen_members: false
+            move_members: false
+            use_v_a_d: false
+            priority_speaker: false
+            stream: false
+            mute_members: false
+            manage_messages: false
+            manage_webhooks: false
+            manage_roles: false
+            view_channel: true
+            add_reactions: true
+            manage_channel: false
+            create_instant_invite: false
+            send_t_t_s_messages: false
+          magic_boi:
+            view_channel: true
+          secret_council:
+            view_channel: true
+      - friendly_id: server_messages
+        id: 752352392934326413
+        name: server-messages
+        category: community
+        role_permissions:
+          everyone:
+            send_messages: false
+            send_t_t_s_messages: false
+      - friendly_id: general
+        id: 751587182161952808
+        name: general
+        category: community
+        role_permissions:
+          everyone:
+            read_message_history: true
+            use_external_emojis: true
+            connect: false
+            speak: false
+            send_messages: true
+            embed_links: true
+            deafen_members: false
+            move_members: false
+            use_v_a_d: false
+            priority_speaker: false
+            stream: false
+            mute_members: false
+            view_channel: true
+            add_reactions: true
+            send_t_t_s_messages: true
+          magic_boi:
+            view_channel: true
+          overseer_role:
+            attach_files: true
+            read_message_history: true
+            mention_everyone: true
+            use_external_emojis: true
+            send_messages: true
+            embed_links: true
+            manage_messages: true
+            manage_webhooks: true
+            manage_roles: true
+            view_channel: true
+            add_reactions: true
+            manage_channel: true
+            create_instant_invite: true
+            send_t_t_s_messages: true
+          secret_council:
+            view_channel: true
+      - friendly_id: anime_sfw
+        id: 766158821042421810
+        name: anime-sfw
+        category: community
+      - friendly_id: creators
+        id: 771214044966420500
+        name: creators
+        category: community
+        role_permissions:
+          everyone:
+            read_message_history: true
+            send_messages: false
+            view_channel: true
+            add_reactions: true
+          magic_boi:
+            send_messages: true
+          overseer_role:
+            read_message_history: true
+            mention_everyone: true
+            use_external_emojis: true
+            send_messages: true
+            view_channel: true
+            add_reactions: true
+          secret_council:
+            send_messages: true
+          magic_boifriends:
+            send_messages: true
+          magic_familiars:
+            send_messages: true
+          creator_hardly_know_er:
+            send_messages: true
+      - friendly_id: memes
         id: 523395460484956160
         name: memes
         category: community
-        position: 18
         role_permissions:
           everyone:
             connect: false
@@ -1401,179 +1333,179 @@ categories:
           meme_probation:
             send_messages: true
             view_channel: true
-      creators:
-        id: 771214044966420500
-        name: creators
-        category: community
-        position: 17
-        role_permissions:
-          everyone:
-            read_message_history: true
-            send_messages: false
-            view_channel: true
-            add_reactions: true
-          magic_boi:
-            send_messages: true
-          overseer_role:
-            read_message_history: true
-            mention_everyone: true
-            use_external_emojis: true
-            send_messages: true
-            view_channel: true
-            add_reactions: true
-          secret_council:
-            send_messages: true
-          magic_boifriends:
-            send_messages: true
-          magic_familiars:
-            send_messages: true
-          creator_hardly_know_er:
-            send_messages: true
-      server_messages:
-        id: 752352392934326413
-        name: server-messages
-        category: community
-        position: 14
-        role_permissions:
-          everyone:
-            send_messages: false
-            send_t_t_s_messages: false
-      welcome:
-        id: 763906732937707580
-        name: welcome
-        category: community
-        position: 13
-        role_permissions:
-          everyone:
-            attach_files: false
-            read_message_history: true
-            mention_everyone: false
-            use_external_emojis: true
-            connect: false
-            speak: false
-            send_messages: false
-            embed_links: false
-            deafen_members: false
-            move_members: false
-            use_v_a_d: false
-            priority_speaker: false
-            stream: false
-            mute_members: false
-            manage_messages: false
-            manage_webhooks: false
-            manage_roles: false
-            view_channel: true
-            add_reactions: true
-            manage_channel: false
-            create_instant_invite: false
-            send_t_t_s_messages: false
-          magic_boi:
-            view_channel: true
-          secret_council:
-            view_channel: true
-      music:
-        id: 772579580002304010
-        name: music
-        category: community
-        position: 20
-      general:
-        id: 751587182161952808
-        name: general
-        category: community
-        position: 15
-        role_permissions:
-          everyone:
-            read_message_history: true
-            use_external_emojis: true
-            connect: false
-            speak: false
-            send_messages: true
-            embed_links: true
-            deafen_members: false
-            move_members: false
-            use_v_a_d: false
-            priority_speaker: false
-            stream: false
-            mute_members: false
-            view_channel: true
-            add_reactions: true
-            send_t_t_s_messages: true
-          magic_boi:
-            view_channel: true
-          overseer_role:
-            attach_files: true
-            read_message_history: true
-            mention_everyone: true
-            use_external_emojis: true
-            send_messages: true
-            embed_links: true
-            manage_messages: true
-            manage_webhooks: true
-            manage_roles: true
-            view_channel: true
-            add_reactions: true
-            manage_channel: true
-            create_instant_invite: true
-            send_t_t_s_messages: true
-          secret_council:
-            view_channel: true
-      anime_sfw:
-        id: 766158821042421810
-        name: anime-sfw
-        category: community
-        position: 16
-      townsquare_voice:
-        id: 758603339650564106
-        name: townsquare
-        category: community
-        position: 1
-        role_permissions:
-          everyone:
-            attach_files: false
-            read_message_history: false
-            mention_everyone: false
-            use_external_emojis: false
-            connect: true
-            speak: true
-            send_messages: false
-            embed_links: false
-            deafen_members: false
-            move_members: false
-            use_v_a_d: true
-            priority_speaker: false
-            stream: true
-            mute_members: false
-            manage_messages: false
-            manage_webhooks: false
-            manage_roles: false
-            view_channel: true
-            add_reactions: false
-            manage_channel: false
-            create_instant_invite: false
-            send_t_t_s_messages: false
-          magic_boi:
-            connect: true
-          secret_council:
-            connect: true
-      pets:
+      - friendly_id: pets
         id: 766158911400574987
         name: pets
         category: community
-        position: 19
-      townsquare_chat:
+      - friendly_id: music
+        id: 772579580002304010
+        name: music
+        category: community
+      - friendly_id: townsquare_chat
         id: 830319320809603072
         name: townsquare-chat
         category: community
-        position: 21
         role_permissions:
           overseer_role:
             view_channel: true
           dankditties_public:
             view_channel: true
-  archived_discussions:
+  - friendly_id: role_channels
+    id: 837095945727901696
+    name: ROLE CHANNELS
+    channels:
+      - friendly_id: stonks
+        id: 837096151571234867
+        name: stonks
+        category: role_channels
+        role_permissions:
+          everyone:
+            view_channel: false
+          magic_boi:
+            view_channel: true
+          overseer_role:
+            view_channel: true
+          magic_boifriends:
+            view_channel: true
+          _likes_stocks_:
+            view_channel: true
+  - friendly_id: dnd
+    id: 766160986478477332
+    name: DND
+    role_permissions:
+      everyone:
+        connect: false
+        view_channel: false
+      magic_boi:
+        connect: true
+        view_channel: true
+      avrae:
+        view_channel: true
+      secret_council:
+        connect: true
+        view_channel: true
+      magic_boifriends:
+        connect: true
+        view_channel: true
+      magic_familiars:
+        connect: true
+        view_channel: true
+    channels:
+      - friendly_id: dnd_voice
+        id: 523322503469465603
+        name: DND
+        category: dnd
+      - friendly_id: magic_dnd
+        id: 687880602414088233
+        name: magic-dnd
+        category: dnd
+  - friendly_id: game_room_103
+    id: 766161813338456095
+    name: Game Room 103
+    role_permissions:
+      everyone:
+        connect: false
+        view_channel: false
+      magic_boi:
+        connect: true
+        view_channel: true
+      overseer_role:
+        connect: true
+        view_channel: true
+      secret_council:
+        connect: true
+        view_channel: true
+      magic_boifriends:
+        connect: true
+        view_channel: true
+      magic_familiars:
+        read_message_history: false
+        connect: true
+        view_channel: true
+    channels:
+      - friendly_id: room_103_voice
+        id: 766162168592465920
+        name: Room 103
+        category: game_room_103
+      - friendly_id: room_103
+        id: 766160608038092800
+        name: room-103
+        category: game_room_103
+  - friendly_id: other
+    id: 737303651869261964
+    name: other
+    role_permissions:
+      everyone:
+        attach_files: false
+        read_message_history: false
+        mention_everyone: false
+        use_external_emojis: false
+        connect: false
+        speak: false
+        send_messages: false
+        embed_links: false
+        deafen_members: false
+        move_members: false
+        use_v_a_d: false
+        priority_speaker: false
+        stream: false
+        mute_members: false
+        manage_messages: false
+        manage_webhooks: false
+        manage_roles: false
+        view_channel: false
+        add_reactions: false
+        manage_channel: false
+        create_instant_invite: false
+        send_t_t_s_messages: false
+    channels:
+      - friendly_id: overseer_bot_dev
+        id: 525870830153105419
+        name: overseer-bot-dev
+        category: other
+        role_permissions:
+          magic_boi:
+            view_channel: true
+          secret_council:
+            view_channel: true
+          magic_boifriends:
+            view_channel: true
+          magic_familiars:
+            view_channel: true
+      - friendly_id: apocalyptia_ii_electric_boogaloo
+        id: 717744150665232394
+        name: apocalyptia-ii-electric-boogaloo
+        category: other
+        role_permissions:
+          magic_boi:
+            view_channel: true
+          secret_council:
+            view_channel: true
+      - friendly_id: mystery_bricks
+        id: 717428996106878997
+        name: mystery-bricks
+        category: other
+        role_permissions:
+          magic_boi:
+            view_channel: true
+          secret_council:
+            view_channel: true
+  - friendly_id: magic_bois_only
+    id: 766156230052806666
+    name: Magic Bois Only!
+    role_permissions:
+      everyone:
+        connect: false
+        view_channel: false
+      magic_boi:
+        connect: true
+        view_channel: true
+      secret_council:
+        connect: true
+        view_channel: true
+  - friendly_id: archived_discussions
     id: 658717654479011859
     name: archived discussions
-    position: 11
     role_permissions:
       everyone:
         connect: false
@@ -1583,44 +1515,57 @@ categories:
         connect: true
         view_channel: true
     channels:
-      war_of_the_davids:
-        id: 699755303360528416
-        name: war-of-the-davids
-        category: archived_discussions
-        position: 31
-      spooky:
+      - friendly_id: spooky
         id: 769677155528736818
         name: "spooky\U0001F47B"
         category: archived_discussions
-        position: 28
-      apocalyptia:
-        id: 631992608939311124
-        name: apocalyptia
-        category: archived_discussions
-        position: 36
-      the_boys:
-        id: 766163256464506880
-        name: the-boys
-        category: archived_discussions
-        position: 38
-        role_permissions:
-          spoilers_the_boys:
-            view_channel: true
-      pets_archived_001:
+      - friendly_id: pets_archived_001
         id: 596462807571234849
         name: pets-archived-001
         category: archived_discussions
-        position: 29
-      discord_highlights:
+      - friendly_id: jerkison
+        id: 671906679230693399
+        name: jerkison
+        category: archived_discussions
+      - friendly_id: war_of_the_davids
+        id: 699755303360528416
+        name: war-of-the-davids
+        category: archived_discussions
+      - friendly_id: simulator_discussion
+        id: 697181123490349066
+        name: simulator-discussion
+        category: archived_discussions
+      - friendly_id: simulator
+        id: 693922768701358081
+        name: simulator
+        category: archived_discussions
+      - friendly_id: discord_highlights
         id: 716445349903990824
         name: discord-highlights
         category: archived_discussions
-        position: 34
-      city_private:
+      - friendly_id: plague
+        id: 685574706342133793
+        name: plague
+        category: archived_discussions
+      - friendly_id: apocalyptia
+        id: 631992608939311124
+        name: apocalyptia
+        category: archived_discussions
+      - friendly_id: stalk_market
+        id: 690634929238704257
+        name: stalk-market
+        category: archived_discussions
+      - friendly_id: the_boys
+        id: 766163256464506880
+        name: the-boys
+        category: archived_discussions
+        role_permissions:
+          spoilers_the_boys:
+            view_channel: true
+      - friendly_id: city_private
         id: 708416592823713883
         name: city-private
         category: archived_discussions
-        position: 39
         role_permissions:
           everyone:
             speak: false
@@ -1640,28 +1585,3 @@ categories:
             embed_links: true
             view_channel: true
             add_reactions: true
-      jerkison:
-        id: 671906679230693399
-        name: jerkison
-        category: archived_discussions
-        position: 30
-      simulator:
-        id: 693922768701358081
-        name: simulator
-        category: archived_discussions
-        position: 33
-      simulator_discussion:
-        id: 697181123490349066
-        name: simulator-discussion
-        category: archived_discussions
-        position: 32
-      stalk_market:
-        id: 690634929238704257
-        name: stalk-market
-        category: archived_discussions
-        position: 37
-      plague:
-        id: 685574706342133793
-        name: plague
-        category: archived_discussions
-        position: 35

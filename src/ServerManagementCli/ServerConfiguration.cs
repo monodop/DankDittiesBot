@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using YamlDotNet.Serialization;
 
 namespace ServerManagementCli
 {
     public class ServerConfiguration
     {
-        public Dictionary<string, ServerConfigurationRole> Roles { get; set; } = new Dictionary<string, ServerConfigurationRole>();
-        public Dictionary<string, ServerConfigurationCategory> Categories { get; set; } = new Dictionary<string, ServerConfigurationCategory>();
+        public List<ServerConfigurationRole> Roles { get; set; } = new List<ServerConfigurationRole>();
+        public List<ServerConfigurationCategory> Categories { get; set; } = new List<ServerConfigurationCategory>();
     }
 
     public class ServerConfigurationRole
     {
+        public string? FriendlyId { get; set; }
         public ulong Id { get; set; }
         public string? Name { get; set; }
+        [YamlIgnore]
         public int Position { get; set; }
         public string? Color { get; set; }
         public bool HasManagedMembership { get; set; }
@@ -25,20 +28,24 @@ namespace ServerManagementCli
 
     public class ServerConfigurationCategory
     {
+        public string? FriendlyId { get; set; }
         public ulong Id { get; set; }
         public string? Name { get; set; }
+        [YamlIgnore]
         public int Position { get; set; }
 
         public Dictionary<string, PermissionSet> RolePermissions { get; set; } = new Dictionary<string, PermissionSet>();
         public Dictionary<string, PermissionSet> UserPermissions { get; set; } = new Dictionary<string, PermissionSet>();
-        public Dictionary<string, ServerConfigurationChannel> Channels { get; set; } = new Dictionary<string, ServerConfigurationChannel>();
+        public List<ServerConfigurationChannel> Channels { get; set; } = new List<ServerConfigurationChannel>();
     }
 
     public class ServerConfigurationChannel
     {
+        public string? FriendlyId { get; set; }
         public ulong Id { get; set; }
         public string? Name { get; set; }
         public string? Category { get; set; }
+        [YamlIgnore]
         public int Position { get; set; }
         public bool SyncPermissions { get; set; }
 

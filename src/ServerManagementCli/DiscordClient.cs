@@ -45,49 +45,68 @@ namespace ServerManagementCli
                 var serializer = new SerializerBuilder()
                     .WithNamingConvention(UnderscoredNamingConvention.Instance)
                     .ConfigureDefaultValuesHandling(DefaultValuesHandling.OmitDefaults | DefaultValuesHandling.OmitEmptyCollections | DefaultValuesHandling.OmitNull)
+                    .WithIndentedSequences()
                     .Build();
 
                 var expectedConfiguration = deserializer.Deserialize<ServerConfiguration>(File.ReadAllText(Program.ServerConfigFileLocation));
+                for (int i = 0; i < expectedConfiguration.Roles.Count; i++)
+                {
+                    expectedConfiguration.Roles[i].Position = expectedConfiguration.Roles.Count - i - 1;
+                }
+                var nextCategoryPos = 0;
+                foreach (var category in expectedConfiguration.Categories)
+                {
+                    category.Position = nextCategoryPos++;
+                    var nextChannelPos = 0;
+                    foreach (var channel in category.Channels)
+                    {
+                        channel.Position = nextChannelPos++;
+                    }
+                }
 
                 var existingConfiguration = new ServerConfiguration();
 
-                foreach (var role in guild.Roles)
+                var nextRolePos = guild.Roles.Count - 1;
+                foreach (var role in guild.Roles.OrderByDescending(r => r.Position))
                 {
                     if (role == null)
                         continue;
 
-                    var matchingRole = expectedConfiguration.Roles.FirstOrDefault(kvp => kvp.Value.Id == role.Id);
-                    var friendlyId = matchingRole.Key ?? _generateFriendlyName(role.Name);
-                    var needsMembership = matchingRole.Value?.HasManagedMembership == true;
-                    existingConfiguration.Roles.Add(friendlyId, new ServerConfigurationRole()
+                    var matchingRole = expectedConfiguration.Roles.FirstOrDefault(r => r.Id == role.Id);
+                    var friendlyId = matchingRole?.FriendlyId ?? _generateFriendlyName(role.Name);
+                    var needsMembership = matchingRole?.HasManagedMembership == true;
+                    existingConfiguration.Roles.Add(new ServerConfigurationRole()
                     {
+                        FriendlyId = friendlyId,
                         Id = role.Id,
                         Name = role.Name,
-                        Position = role.Position,
+                        Position = nextRolePos--,
                         Color = role.Color.ToString().TrimStart('#'),
                         HasManagedMembership = needsMembership,
-                        Membership = needsMembership ? role.Members.Select(_getGoodName).ToList() : new List<string>(),
+                        Membership = needsMembership ? role.Members.Select(_getGoodName).OrderBy(n => n).ToList() : new List<string>(),
                         Permissions = _mapPermissions(role.Permissions),
                     });
                 }
 
                 var channelMappings = new Dictionary<ulong, ulong>();
-                foreach (var category in guild.CategoryChannels)
+                nextCategoryPos = 0;
+                foreach (var category in guild.CategoryChannels.OrderBy(c => c.Position))
                 {
                     if (category == null)
                         continue;
 
-                    var matchingCategory = expectedConfiguration.Categories.FirstOrDefault(kvp => kvp.Value.Id == category.Id);
-                    var categoryFriendlyId = matchingCategory.Key ?? _generateFriendlyName(category.Name);
-                    existingConfiguration.Categories.Add(categoryFriendlyId, new ServerConfigurationCategory()
+                    var matchingCategory = expectedConfiguration.Categories.FirstOrDefault(c => c.Id == category.Id);
+                    string categoryFriendlyId = matchingCategory?.FriendlyId ?? _generateFriendlyName(category.Name);
+                    existingConfiguration.Categories.Add(new ServerConfigurationCategory()
                     {
+                        FriendlyId = categoryFriendlyId,
                         Id = category.Id,
                         Name = category.Name,
-                        Position = category.Position,
+                        Position = nextCategoryPos++,
                         RolePermissions = category.PermissionOverwrites
                                         .Where(p => p.TargetType == PermissionTarget.Role)
                                         .ToDictionary(
-                                            p => existingConfiguration.Roles.FirstOrDefault(role => role.Value.Id == p.TargetId).Key,
+                                            p => existingConfiguration.Roles.FirstOrDefault(r => r.Id == p.TargetId)!.FriendlyId!,
                                             p => _mapPermissions(p.Permissions)
                                         ),
                         UserPermissions = category.PermissionOverwrites
@@ -98,23 +117,25 @@ namespace ServerManagementCli
                                         ),
                     });
 
-                    foreach (var channel in category.Channels)
+                    var nextChannelPos = 0;
+                    foreach (var channel in category.Channels.OrderBy(c => c.Position))
                     {
                         if (channel == null)
                             continue;
 
-                        var matchingChannel = matchingCategory.Value?.Channels.FirstOrDefault(kvp => kvp.Value.Id == channel.Id);
-                        var channelFriendlyId = matchingChannel?.Key ?? _generateFriendlyName(channel.Name + (channel is IVoiceChannel ? "_voice" : ""));
-                        existingConfiguration.Categories[categoryFriendlyId].Channels.Add(channelFriendlyId, new ServerConfigurationChannel()
+                        var matchingChannel = matchingCategory?.Channels.FirstOrDefault(c => c.Id == channel.Id);
+                        string channelFriendlyId = matchingChannel?.FriendlyId ?? _generateFriendlyName(channel.Name + (channel is IVoiceChannel ? "_voice" : ""));
+                        existingConfiguration.Categories.FirstOrDefault(c => c.FriendlyId == categoryFriendlyId)!.Channels.Add(new ServerConfigurationChannel()
                         {
+                            FriendlyId = channelFriendlyId,
                             Id = channel.Id,
                             Name = channel.Name,
                             Category = categoryFriendlyId,
-                            Position = channel.Position,
+                            Position = nextChannelPos++,
                             RolePermissions = channel.PermissionOverwrites
                                         .Where(p => p.TargetType == PermissionTarget.Role)
                                         .Select(p => new KeyValuePair<string, PermissionSet?>(
-                                                existingConfiguration.Roles.FirstOrDefault(role => role.Value.Id == p.TargetId).Key,
+                                                existingConfiguration.Roles.FirstOrDefault(r => r.Id == p.TargetId)!.FriendlyId!,
                                                 _mapPermissions(p.Permissions, category.PermissionOverwrites.FirstOrDefault(po => po.TargetId == p.TargetId && po.TargetType == p.TargetType).Permissions)
                                             ))
                                         .Where(kvp => kvp.Value != null)
@@ -134,6 +155,13 @@ namespace ServerManagementCli
                 var cl = new CompareLogic(new ComparisonConfig()
                 {
                     MaxDifferences = int.MaxValue,
+                    IgnoreCollectionOrder = true,
+                    CollectionMatchingSpec = new Dictionary<Type, IEnumerable<string>>()
+                    {
+                        { typeof(ServerConfigurationRole), new string[] { nameof(ServerConfigurationRole.FriendlyId) } },
+                        { typeof(ServerConfigurationCategory), new string[] { nameof(ServerConfigurationCategory.FriendlyId) } },
+                        { typeof(ServerConfigurationChannel), new string[] { nameof(ServerConfigurationChannel.FriendlyId) } },
+                    }
                 });
                 var comparison = cl.Compare(expectedConfiguration, existingConfiguration);
 
