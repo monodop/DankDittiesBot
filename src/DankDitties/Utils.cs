@@ -8,6 +8,16 @@ namespace DankDitties
 {
     public static class Utils
     {
+        public static string? GetEnv(string name)
+        {
+            return Environment.GetEnvironmentVariable(name);
+        }
+        public static string GetEnv(string name, string defaultValue)
+        {
+            return Environment.GetEnvironmentVariable(name) ?? defaultValue;
+        }
+
+
         public static T NextWeighted<T>(this Random random, IEnumerable<T> sequence, Func<T, double> weightSelector)
         {
             double totalWeight = sequence.Sum(weightSelector);

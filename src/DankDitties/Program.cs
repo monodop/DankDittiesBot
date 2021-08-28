@@ -25,34 +25,34 @@ namespace DankDitties
         private static MetadataManager? _metadataManager;
         private static string _audioDir = "audio";
 
-        public static readonly string DecTalkExecutable = _getEnv("DECTALK_EXE", "wine");
-        public static readonly string DecTalkWorkingDirectory = _getEnv("DECTALK_WD", "/app/dectalk");
-        public static readonly string DecTalkArgTemplate = _getEnv("DECTALK_ARG_TEMPLATE", "/app/dectalk/say.exe -pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}");
-        public static readonly string PythonExecutable = _getEnv("PYTHON_EXE", "python");
-        public static readonly string? ScriptDir = _getEnv("SCRIPT_DIR");
-        public static readonly string? DataDir = _getEnv("DATA_DIR");
-        public static readonly bool EnableVoiceCommands = _getEnv("ENABLE_VOICE_COMMANDS", "true") == "true";
+        public static readonly string DecTalkExecutable = Utils.GetEnv("DECTALK_EXE", "wine");
+        public static readonly string DecTalkWorkingDirectory = Utils.GetEnv("DECTALK_WD", "/app/dectalk");
+        public static readonly string DecTalkArgTemplate = Utils.GetEnv("DECTALK_ARG_TEMPLATE", "/app/dectalk/say.exe -pre \"[:phoneme on]\" -w {{FILENAME}} {{TEXT}}");
+        public static readonly string PythonExecutable = Utils.GetEnv("PYTHON_EXE", "python");
+        public static readonly string? ScriptDir = Utils.GetEnv("SCRIPT_DIR");
+        public static readonly string? DataDir = Utils.GetEnv("DATA_DIR");
+        public static readonly bool EnableVoiceCommands = Utils.GetEnv("ENABLE_VOICE_COMMANDS", "true") == "true";
         public static ulong? VoiceCommandRole
         {
             get
             {
-                var roleStr = _getEnv("VOICE_COMMAND_ROLE");
+                var roleStr = Utils.GetEnv("VOICE_COMMAND_ROLE");
                 if (roleStr != null)
                     return ulong.Parse(roleStr);
                 return null;
             }
         }
-        public static readonly ulong DiscordServerId = ulong.Parse(_getEnv("SERVER_ID", "493935564832374795"));
-        public static readonly ulong DiscordChannelId = ulong.Parse(_getEnv("CHANNEL_ID", "493935564832374803"));
-        public static readonly string? DiscordApiKeyOverride = _getEnv("DISCORD_API_KEY");
-        public static readonly string? WitAiApiKeyOverride = _getEnv("WITAI_API_KEY");
-        public static readonly int SoundVolume = int.Parse(_getEnv("SOUND_VOLUME", "30"));
-        public static readonly int VoiceAssistantVolume = int.Parse(_getEnv("VA_VOLUME", "200"));
+        public static readonly ulong DiscordServerId = ulong.Parse(Utils.GetEnv("SERVER_ID", "493935564832374795"));
+        public static readonly ulong DiscordChannelId = ulong.Parse(Utils.GetEnv("CHANNEL_ID", "493935564832374803"));
+        public static readonly string? DiscordApiKeyOverride = Utils.GetEnv("DISCORD_API_KEY");
+        public static readonly string? WitAiApiKeyOverride = Utils.GetEnv("WITAI_API_KEY");
+        public static readonly int SoundVolume = int.Parse(Utils.GetEnv("SOUND_VOLUME", "30"));
+        public static readonly int VoiceAssistantVolume = int.Parse(Utils.GetEnv("VA_VOLUME", "200"));
         public static readonly Dictionary<string, double> FlairMultipliers;
 
         static Program()
         {
-            var segments = Regex.Split(_getEnv("FLAIR_MULTIPLIERS", ""), @"(?<!\\);");
+            var segments = Regex.Split(Utils.GetEnv("FLAIR_MULTIPLIERS", ""), @"(?<!\\);");
             FlairMultipliers = new Dictionary<string, double>();
             foreach (var segment in segments)
             {
@@ -62,15 +62,6 @@ namespace DankDitties
                     FlairMultipliers[segment.Substring(0, eqIndex)] = double.Parse(segment.Substring(eqIndex + 1));
                 }
             }
-        }
-
-        private static string? _getEnv(string name)
-        {
-            return Environment.GetEnvironmentVariable(name);
-        }
-        private static string _getEnv(string name, string defaultValue)
-        {
-            return Environment.GetEnvironmentVariable(name) ?? defaultValue;
         }
 
         public static async Task Main(string[] args)
