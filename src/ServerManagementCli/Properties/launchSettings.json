@@ -4,7 +4,7 @@
       "commandName": "Project",
       "workingDirectory": "D:\\Harrison\\Documents\\git\\DankDitties",
       "environmentVariables": {
-        "SERVER_CONFIG_FILE": "config.yml"
+        "SERVER_CONFIG_FILE": "server_config.yml"
       }
     }
   }
