@@ -56,7 +56,6 @@ namespace DankDitties.Audio
                 throw new ArgumentException();
             }
 
-            Console.WriteLine(keywordPaths.Count());
             Status status = pv_porcupine_init(modelPath, keywordPaths.Count(), keywordPaths.ToArray(), sensitivities.ToArray(), out _libraryPointer);
             if (status != Status.SUCCESS)
             {

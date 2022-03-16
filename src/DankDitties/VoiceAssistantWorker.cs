@@ -1,4 +1,4 @@
-using DankDitties.Audio;
+﻿using DankDitties.Audio;
 using DankDitties.Data;
 using Discord.WebSocket;
 using System;
@@ -46,9 +46,9 @@ namespace DankDitties
                 else
                 {
                     keywordFiles = new string[] {
-                        Path.Join(entryDirectory, "alexa_linux.ppn"),
-                        Path.Join(entryDirectory, "porcupine_linux.ppn"),
-                        Path.Join(entryDirectory, "snowboy_linux.ppn"),
+                        // Path.Join(entryDirectory, "alexa_linux.ppn"),
+                        // Path.Join(entryDirectory, "porcupine_linux.ppn"),
+                        // Path.Join(entryDirectory, "snowboy_linux.ppn"),
                         Path.Join(entryDirectory, "dank_ditties_linux.ppn"),
                     };
                 }

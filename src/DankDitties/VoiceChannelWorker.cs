@@ -204,7 +204,14 @@ namespace DankDitties
                     Console.WriteLine(e);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                try
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1), cancellationToken);
+                }
+                catch (TaskCanceledException)
+                {
+                    // coo
+                }
             }
             stops = _assistants.Values.Select(a => a.TryEnsureStoppedAsync());
             await Task.WhenAll(stops);
@@ -212,13 +219,14 @@ namespace DankDitties
 
         protected override async Task DoWorkAsync(CancellationToken cancellationToken)
         {
+            using var assistantCancellationTokenSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             try
             {
                 Console.WriteLine("Voice Channel Worker Connecting");
                 var audioClient = await _voiceChannel.ConnectAsync();
                 using var audioOutStream = audioClient.CreatePCMStream(AudioApplication.Music);
 
-                _ = Task.Run(() => _assistantManager(cancellationToken));
+                _ = Task.Run(() => _assistantManager(assistantCancellationTokenSource.Token));
 
                 _mainTrack = new Track();
                 _mainTrack.OnClipCompleted += async (s, e) =>
@@ -263,9 +271,11 @@ namespace DankDitties
             catch (Exception e)
             {
                 Console.WriteLine(e);
+                assistantCancellationTokenSource.Cancel();
             }
             finally
             {
+                // TODO: did someone forget about the assistant to the general manager?
                 Console.WriteLine("Voice Channel Worker Disconnecting");
                 await _voiceChannel.DisconnectAsync();
             }
