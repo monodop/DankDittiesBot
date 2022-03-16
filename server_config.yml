@@ -1,6 +1,6 @@
-﻿roles:
+roles:
   - friendly_id: secret_council
-    id: 766150388402749441
+    id: 881361911449526342
     name: Secret Council
     color: C27C0E
     has_managed_membership: true
@@ -46,7 +46,7 @@
       - monodop#8543
       - Primarina#3120
   - friendly_id: paper_hands
-    id: 819257859481010256
+    id: 881361912061886464
     name: "\U0001F450\U0001F9FBPaper Hands\U0001F9FB\U0001F450"
     color: FFFFFF
     permissions:
@@ -81,7 +81,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: magic_boi
-    id: 528759612036349953
+    id: 881361912795893780
     name: Magic Boi
     color: 206694
     has_managed_membership: true
@@ -136,7 +136,7 @@
       - Raj Kasula#5291
       - Stevo Killz#7438
   - friendly_id: magic_boifriends
-    id: 766152873347383316
+    id: 881361913454395412
     name: Magic BoiFriends
     color: 3498DB
     has_managed_membership: true
@@ -178,7 +178,7 @@
       - mynameisfatmike#3374
       - rachel#9261
   - friendly_id: magic_familiars
-    id: 766153823118163969
+    id: 881361914041606184
     name: Magic Familiars
     color: 2ECC71
     permissions:
@@ -213,7 +213,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: dadfucker
-    id: 783215928506187789
+    id: 881361914616246282
     name: "\U0001F346Dadfucker\U0001F346"
     color: 8230EF
     permissions:
@@ -248,7 +248,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: licensed_memer
-    id: 819347909812027402
+    id: 881361915119554651
     name: Licensed Memer
     color: F1C40F
     permissions:
@@ -283,7 +283,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: creator_hardly_know_er
-    id: 851517649468915763
+    id: 881361916415590410
     name: Creator? Hardly know 'er
     color: F1C40F
     permissions:
@@ -318,7 +318,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: meme_probation
-    id: 819348042360684585
+    id: 881361917040529438
     name: Meme Probation
     color: A84300
     permissions:
@@ -353,7 +353,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: meme_jail
-    id: 819348113318739998
+    id: 881361917682253854
     name: Meme Jail
     color: 992D22
     permissions:
@@ -388,7 +388,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: likespolitics
-    id: 773234274785689622
+    id: 881361918273662996
     name: LikesPolitics
     color: 000000
     permissions:
@@ -423,7 +423,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: primarina
-    id: 661836734346166283
+    id: 881361918605025301
     name: Primarina
     color: E91E63
     permissions:
@@ -458,7 +458,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: jerkison
-    id: 671906275692642334
+    id: 881361919506804797
     name: Jerkison
     color: E74C3C
     permissions:
@@ -493,7 +493,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: patrick_friend
-    id: 694006022674710599
+    id: 881361920064651304
     name: patrick friend
     color: E91E63
     permissions:
@@ -528,7 +528,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: billfire_boi
-    id: 694014771820757044
+    id: 881361920626655262
     name: Billfire Boi
     color: 206694
     permissions:
@@ -563,7 +563,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: google_boi
-    id: 745033026366603344
+    id: 881361920916070443
     name: Google Boi
     color: 000000
     permissions:
@@ -598,7 +598,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: overseer_role
-    id: 706344284135358504
+    id: 881361921843003423
     name: Overseer Role
     color: 1F8B4C
     has_managed_membership: true
@@ -636,7 +636,7 @@
     membership:
       - Overseer#5821
   - friendly_id: avrae
-    id: 754521948947611649
+    id: 881361922837078036
     name: Avrae
     color: 000000
     has_managed_membership: true
@@ -674,7 +674,7 @@
     membership:
       - Avrae#6944
   - friendly_id: server_booster
-    id: 756292725950644327
+    id: 881361923508154378
     name: Server Booster
     color: F47FFF
     permissions:
@@ -709,7 +709,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: markov_simulator
-    id: 693907350339452980
+    id: 755368199012352071
     name: Markov Simulator
     color: 000000
     permissions:
@@ -744,7 +744,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: spoilers_the_boys
-    id: 766155155896008725
+    id: 881361924217008138
     name: Spoilers_The Boys
     color: 000000
     permissions:
@@ -779,7 +779,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: dankditties
-    id: 798689247497814047
+    id: 755611777789722772
     name: DankDitties
     color: FFFFFF
     has_managed_membership: true
@@ -817,7 +817,7 @@
     membership:
       - DankDitties#1353
   - friendly_id: splunk_boi
-    id: 820340309480308746
+    id: 881361924883873793
     name: Splunk Boi
     color: D6680E
     permissions:
@@ -852,7 +852,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: dankditties_public
-    id: 821233881646497813
+    id: 881361925454299176
     name: DankDitties Public
     color: 000000
     has_managed_membership: true
@@ -890,7 +890,7 @@
     membership:
       - DankDitties Public#9511
   - friendly_id: saltyboi
-    id: 824818347115413514
+    id: 881361926007947274
     name: saltyboi
     color: 000000
     permissions:
@@ -925,7 +925,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: _likes_stocks_
-    id: 837096422825656340
+    id: 881361926762926090
     name: "\U0001F680 Likes Stocks \U0001F680"
     color: 000000
     permissions:
@@ -960,7 +960,7 @@
       manage_guild: false
       manage_emojis: false
   - friendly_id: everyone
-    id: 493935564832374795
+    id: 755367242459512921
     name: '@everyone'
     color: 000000
     permissions:
@@ -996,7 +996,7 @@
       manage_emojis: false
 categories:
   - friendly_id: secret_council
-    id: 766155724669059083
+    id: 755367242459512922
     name: Secret Council
     role_permissions:
       everyone:
@@ -1007,11 +1007,11 @@ categories:
         view_channel: true
     channels:
       - friendly_id: magic_council
-        id: 759246586093764649
+        id: 755367242459512924
         name: magic-council
         category: secret_council
   - friendly_id: magic_bois_and_boifriends_only
-    id: 766157135674474507
+    id: 881367481577517066
     name: Magic Bois and BoiFriends Only!!
     role_permissions:
       everyone:
@@ -1031,34 +1031,34 @@ categories:
         view_channel: true
     channels:
       - friendly_id: announcements
-        id: 532284579709452299
+        id: 881371244384092170
         name: announcements
         category: magic_bois_and_boifriends_only
       - friendly_id: judgement_dick
-        id: 771211491076079628
+        id: 881371249803153438
         name: judgement-dick
         category: magic_bois_and_boifriends_only
         role_permissions:
           likespolitics:
             view_channel: true
       - friendly_id: adult_content
-        id: 601471681785102339
+        id: 881371251900301343
         name: adult-content
         category: magic_bois_and_boifriends_only
       - friendly_id: events
-        id: 493935564832374799
+        id: 881371254320427028
         name: events
         category: magic_bois_and_boifriends_only
       - friendly_id: cyberpunk_2077
-        id: 786360907654627348
+        id: 881371256207867926
         name: cyberpunk-2077
         category: magic_bois_and_boifriends_only
       - friendly_id: mystery_death
-        id: 879940103533916170
+        id: 881371258586034176
         name: mystery-death
         category: magic_bois_and_boifriends_only
   - friendly_id: friends_and_familiars
-    id: 737729966690533436
+    id: 881367497822072853
     name: Friends and Familiars
     role_permissions:
       everyone:
@@ -1080,27 +1080,27 @@ categories:
         view_channel: true
     channels:
       - friendly_id: main
-        id: 766157890209185816
+        id: 881371260792213554
         name: main
         category: friends_and_familiars
       - friendly_id: programming
-        id: 583064182761586703
+        id: 881371263409483777
         name: programming
         category: friends_and_familiars
       - friendly_id: main_nsfwfh
-        id: 532713792279281684
+        id: 881371265498226779
         name: main-nsfwfh
         category: friends_and_familiars
       - friendly_id: dank_ditties
-        id: 756392078849605682
+        id: 881371267675066378
         name: dank-ditties
         category: friends_and_familiars
       - friendly_id: games
-        id: 523321826630303756
+        id: 881371269923213342
         name: games
         category: friends_and_familiars
   - friendly_id: spoilers
-    id: 766163169428373555
+    id: 881367501500469378
     name: Spoilers
     role_permissions:
       everyone:
@@ -1120,7 +1120,7 @@ categories:
         view_channel: true
     channels:
       - friendly_id: directory
-        id: 766163618236334130
+        id: 881371271764529152
         name: directory
         category: spoilers
         role_permissions:
@@ -1131,7 +1131,7 @@ categories:
           magic_familiars:
             send_messages: false
   - friendly_id: virtual_office
-    id: 766161313365753867
+    id: 881367504033824778
     name: Virtual Office
     role_permissions:
       everyone:
@@ -1154,7 +1154,7 @@ categories:
         view_channel: true
     channels:
       - friendly_id: dank_ditties_virtual_office_voice
-        id: 493935564832374803
+        id: 881371273769410610
         name: Dank Ditties™ Virtual Office
         category: virtual_office
         role_permissions:
@@ -1165,7 +1165,7 @@ categories:
             speak: true
             view_channel: true
       - friendly_id: virtual_office_chat
-        id: 766160274213961778
+        id: 881371275895902218
         name: virtual-office-chat
         category: virtual_office
         role_permissions:
@@ -1177,11 +1177,11 @@ categories:
           dankditties_public:
             view_channel: true
   - friendly_id: community
-    id: 766158680886083595
+    id: 881367506244239420
     name: Community
     channels:
       - friendly_id: townsquare_voice
-        id: 758603339650564106
+        id: 881371277489762375
         name: townsquare
         category: community
         role_permissions:
@@ -1213,7 +1213,7 @@ categories:
           secret_council:
             connect: true
       - friendly_id: welcome
-        id: 763906732937707580
+        id: 881371279280730122
         name: welcome
         category: community
         role_permissions:
@@ -1245,7 +1245,7 @@ categories:
           secret_council:
             view_channel: true
       - friendly_id: server_messages
-        id: 752352392934326413
+        id: 881371282036363284
         name: server-messages
         category: community
         role_permissions:
@@ -1253,7 +1253,7 @@ categories:
             send_messages: false
             send_t_t_s_messages: false
       - friendly_id: general
-        id: 751587182161952808
+        id: 881371284339044423
         name: general
         category: community
         role_permissions:
@@ -1293,11 +1293,11 @@ categories:
           secret_council:
             view_channel: true
       - friendly_id: anime_sfw
-        id: 766158821042421810
+        id: 881371287065337876
         name: anime-sfw
         category: community
       - friendly_id: creators
-        id: 771214044966420500
+        id: 881371289074405408
         name: creators
         category: community
         role_permissions:
@@ -1324,7 +1324,7 @@ categories:
           creator_hardly_know_er:
             send_messages: true
       - friendly_id: memes
-        id: 523395460484956160
+        id: 881371291276431370
         name: memes
         category: community
         role_permissions:
@@ -1373,15 +1373,15 @@ categories:
             send_messages: true
             view_channel: true
       - friendly_id: pets
-        id: 766158911400574987
+        id: 881371293595869214
         name: pets
         category: community
       - friendly_id: music
-        id: 772579580002304010
+        id: 881371295873392670
         name: music
         category: community
       - friendly_id: townsquare_chat
-        id: 830319320809603072
+        id: 881371299241394176
         name: townsquare-chat
         category: community
         role_permissions:
@@ -1390,11 +1390,11 @@ categories:
           dankditties_public:
             view_channel: true
   - friendly_id: role_channels
-    id: 837095945727901696
+    id: 881367508492353586
     name: ROLE CHANNELS
     channels:
       - friendly_id: stonks
-        id: 837096151571234867
+        id: 881371301888000021
         name: stonks
         category: role_channels
         role_permissions:
@@ -1409,7 +1409,7 @@ categories:
           _likes_stocks_:
             view_channel: true
   - friendly_id: dnd
-    id: 766160986478477332
+    id: 881367510744698901
     name: DND
     role_permissions:
       everyone:
@@ -1431,15 +1431,15 @@ categories:
         view_channel: true
     channels:
       - friendly_id: dnd_voice
-        id: 523322503469465603
+        id: 881371305184727071
         name: DND
         category: dnd
       - friendly_id: magic_dnd
-        id: 687880602414088233
+        id: 881371337095012432
         name: magic-dnd
         category: dnd
   - friendly_id: game_room_103
-    id: 766161813338456095
+    id: 881367513139646495
     name: Game Room 103
     role_permissions:
       everyone:
@@ -1463,15 +1463,15 @@ categories:
         view_channel: true
     channels:
       - friendly_id: room_103_voice
-        id: 766162168592465920
+        id: 881371358930534422
         name: Room 103
         category: game_room_103
       - friendly_id: room_103
-        id: 766160608038092800
+        id: 881371359266099221
         name: room-103
         category: game_room_103
   - friendly_id: other
-    id: 737303651869261964
+    id: 881367515387801640
     name: other
     role_permissions:
       everyone:
@@ -1499,7 +1499,7 @@ categories:
         send_t_t_s_messages: false
     channels:
       - friendly_id: overseer_bot_dev
-        id: 525870830153105419
+        id: 881371362235662417
         name: overseer-bot-dev
         category: other
         role_permissions:
@@ -1512,7 +1512,7 @@ categories:
           magic_familiars:
             view_channel: true
       - friendly_id: apocalyptia_ii_electric_boogaloo
-        id: 717744150665232394
+        id: 881371363259088896
         name: apocalyptia-ii-electric-boogaloo
         category: other
         role_permissions:
@@ -1521,7 +1521,7 @@ categories:
           secret_council:
             view_channel: true
       - friendly_id: mystery_bricks
-        id: 717428996106878997
+        id: 881371363930144798
         name: mystery-bricks
         category: other
         role_permissions:
@@ -1530,7 +1530,7 @@ categories:
           secret_council:
             view_channel: true
   - friendly_id: magic_bois_only
-    id: 766156230052806666
+    id: 881367517849866340
     name: Magic Bois Only!
     role_permissions:
       everyone:
@@ -1543,7 +1543,7 @@ categories:
         connect: true
         view_channel: true
   - friendly_id: archived_discussions
-    id: 658717654479011859
+    id: 881367520408379442
     name: archived discussions
     role_permissions:
       everyone:
@@ -1555,54 +1555,54 @@ categories:
         view_channel: true
     channels:
       - friendly_id: spooky
-        id: 769677155528736818
+        id: 881371364706099200
         name: "spooky\U0001F47B"
         category: archived_discussions
       - friendly_id: pets_archived_001
-        id: 596462807571234849
+        id: 881371365423333466
         name: pets-archived-001
         category: archived_discussions
       - friendly_id: jerkison
-        id: 671906679230693399
+        id: 881371366069260298
         name: jerkison
         category: archived_discussions
       - friendly_id: war_of_the_davids
-        id: 699755303360528416
+        id: 881371366694207509
         name: war-of-the-davids
         category: archived_discussions
       - friendly_id: simulator_discussion
-        id: 697181123490349066
+        id: 881371367289806898
         name: simulator-discussion
         category: archived_discussions
       - friendly_id: simulator
-        id: 693922768701358081
+        id: 881371367990231041
         name: simulator
         category: archived_discussions
       - friendly_id: discord_highlights
-        id: 716445349903990824
+        id: 881371368720052234
         name: discord-highlights
         category: archived_discussions
       - friendly_id: plague
-        id: 685574706342133793
+        id: 881371369328234557
         name: plague
         category: archived_discussions
       - friendly_id: apocalyptia
-        id: 631992608939311124
+        id: 881371369693147177
         name: apocalyptia
         category: archived_discussions
       - friendly_id: stalk_market
-        id: 690634929238704257
+        id: 881371370519429140
         name: stalk-market
         category: archived_discussions
       - friendly_id: the_boys
-        id: 766163256464506880
+        id: 881371371144380426
         name: the-boys
         category: archived_discussions
         role_permissions:
           spoilers_the_boys:
             view_channel: true
       - friendly_id: city_private
-        id: 708416592823713883
+        id: 881371371962269807
         name: city-private
         category: archived_discussions
         role_permissions:

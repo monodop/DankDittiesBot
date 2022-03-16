@@ -10,7 +10,7 @@ namespace ServerManagementCli
     class Program
     {
         public static readonly string ServerConfigFileLocation = Utils.GetEnv("SERVER_CONFIG_FILE") ?? throw new Exception("missing server config file location");
-        public static readonly ulong DiscordServerId = ulong.Parse(Utils.GetEnv("SERVER_ID", "493935564832374795"));
+        public static readonly ulong DiscordServerId = ulong.Parse(Utils.GetEnv("SERVER_ID", "XXXXX493935564832374795"));
         public static readonly string? DiscordApiKeyOverride = Utils.GetEnv("DISCORD_API_KEY");
 
         public static async Task Main(string[] args)

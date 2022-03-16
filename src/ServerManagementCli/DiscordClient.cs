@@ -1,8 +1,9 @@
 ﻿using Discord;
 using Discord.WebSocket;
-using KellermanSoftware.CompareNetObjects;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -152,20 +153,261 @@ namespace ServerManagementCli
                     }
                 }
 
-                var cl = new CompareLogic(new ComparisonConfig()
-                {
-                    MaxDifferences = int.MaxValue,
-                    IgnoreCollectionOrder = true,
-                    CollectionMatchingSpec = new Dictionary<Type, IEnumerable<string>>()
-                    {
-                        { typeof(ServerConfigurationRole), new string[] { nameof(ServerConfigurationRole.FriendlyId) } },
-                        { typeof(ServerConfigurationCategory), new string[] { nameof(ServerConfigurationCategory.FriendlyId) } },
-                        { typeof(ServerConfigurationChannel), new string[] { nameof(ServerConfigurationChannel.FriendlyId) } },
-                    }
-                });
-                var comparison = cl.Compare(expectedConfiguration, existingConfiguration);
+                var results = new ConfigDiff().GetDifferences(expectedConfiguration, existingConfiguration).ToList();
 
-                var yaml = serializer.Serialize(existingConfiguration);
+                string yamlPrint(object? o, int depth = 4)
+                {
+                    if (o == null)
+                        return "null";
+
+                    var newLine = "\n" + new string(' ', depth);
+                    var serialized = serializer!.Serialize(o).TrimEnd().Replace("\n", newLine);
+                    if (serialized.Contains('\n'))
+                        return newLine + serialized;
+                    return serialized;
+                }
+                foreach (ConfigDiff.IResult change in results)
+                {
+                    if (change is ConfigDiff.IResult<ServerConfigurationRole> roleChange)
+                    {
+                        var actualRole = roleChange.Actual;
+                        var expectedRole = roleChange.Expected;
+                        if (actualRole == null && expectedRole != null)
+                        {
+                            // Add
+                            Console.WriteLine("Adding new role: " + expectedRole.Name);
+                            Console.WriteLine("  Friendly id: " + expectedRole.FriendlyId);
+                            Console.WriteLine("  Position: " + expectedRole.Position);
+                            Console.WriteLine("  Color: #" + expectedRole.Color);
+                            Console.WriteLine("  HasManagedMembership: " + expectedRole.HasManagedMembership);
+                            Console.WriteLine("  Permissions: " + yamlPrint(expectedRole.Permissions));
+                            Console.WriteLine("  Membership: ");
+                            foreach (var member in expectedRole.Membership)
+                            {
+                                Console.WriteLine("    " + member);
+                            }
+                            Console.WriteLine();
+
+                            var requestOptions = new RequestOptions()
+                            {
+                                AuditLogReason = "Automatically added by DankDitties", // TODO: better message
+                            };
+                            // TODO: hoisted
+                            // TODO: there's another thing too
+                            var color = ColorTranslator.FromHtml("#" + expectedRole.Color);
+                            var newRole = await guild.CreateRoleAsync(expectedRole.Name, _mapGuildPermissions(expectedRole.Permissions), new Discord.Color(color.R, color.G, color.B), false, requestOptions);
+                            expectedRole.Id = newRole.Id;
+                        }
+                        else if (expectedRole == null && actualRole != null)
+                        {
+                            // Remove
+                            Console.WriteLine($"Deleting existing role: {actualRole.Name} ({actualRole.Id})");
+                            try
+                            {
+                                var requestOptions = new RequestOptions()
+                                {
+                                    AuditLogReason = "Automatically deleted by DankDitties", // TODO: better message
+                                };
+                                var guildRole = guild.Roles.FirstOrDefault(r => r.Id == actualRole.Id);
+                                if (guildRole != null)
+                                    await guildRole.DeleteAsync(requestOptions);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Failed to remove existing role: {actualRole.Name} ({actualRole.Id})");
+                                Console.WriteLine(e);
+                            }
+                            Console.WriteLine();
+                        }
+                        else if (expectedRole != null && actualRole != null)
+                        {
+                            // Modify
+                            Console.WriteLine($"Modifying role: {actualRole.Name} ({actualRole.Id})");
+                            foreach (var prop in roleChange.ChangedProperties)
+                            {
+                                var e = prop.GetValue(expectedRole);
+                                var a = prop.GetValue(actualRole);
+                                if (prop.Name == "Permissions" || prop.Name == "Membership")
+                                {
+                                    e = yamlPrint(e);
+                                    a = yamlPrint(a);
+                                }
+                                Console.WriteLine($"  {prop.Name}: {a} -> {e}");
+                            }
+                            Console.WriteLine();
+                        }
+                    }
+                    else if (change is ConfigDiff.IResult<ServerConfigurationCategory> categoryChange)
+                    {
+                        var actualCategory = categoryChange.Actual;
+                        var expectedCategory = categoryChange.Expected;
+                        if (actualCategory == null && expectedCategory != null)
+                        {
+                            // Add
+                            Console.WriteLine("Adding new category: " + expectedCategory.Name);
+                            Console.WriteLine("  Friendly id: " + expectedCategory.FriendlyId);
+                            Console.WriteLine("  Position: " + expectedCategory.Position);
+                            Console.WriteLine("  UserPermissions: " + yamlPrint(expectedCategory.UserPermissions));
+                            Console.WriteLine("  RolePermissions: " + yamlPrint(expectedCategory.RolePermissions));
+                            Console.WriteLine();
+
+                            var requestOptions = new RequestOptions()
+                            {
+                                AuditLogReason = "Automatically added by DankDitties", // TODO: better message
+                            };
+                            var newCategory = await guild.CreateCategoryChannelAsync(expectedCategory.Name, (props) =>
+                            {
+                                var userPermissions = from kvp in expectedCategory.UserPermissions
+                                                      let userName = kvp.Key
+                                                      let permission = kvp.Value
+                                                      let matchingUser = guild.Users.FirstOrDefault(u => _getGoodName(u) == userName)
+                                                      where matchingUser != null
+                                                      select (matchingUser.Id, permission);
+                                var rolePermissions = from kvp in expectedCategory.RolePermissions
+                                                      let roleName = kvp.Key
+                                                      let permission = kvp.Value
+                                                      let matchingRole = expectedConfiguration.Roles.FirstOrDefault(r => r.FriendlyId == roleName)
+                                                      where matchingRole != null
+                                                      select (matchingRole.Id, permission);
+
+                                props.PermissionOverwrites = new Optional<IEnumerable<Overwrite>>(_mapPermissionOverwrites(userPermissions, rolePermissions));
+                                props.Position = expectedCategory.Position;
+
+                            }, requestOptions);
+                            expectedCategory.Id = newCategory.Id;
+                        }
+                        else if (expectedCategory == null && actualCategory != null)
+                        {
+                            // Remove
+                            Console.WriteLine($"Deleting existing category: {actualCategory.Name} ({actualCategory.Id})");
+                            try
+                            {
+                                var requestOptions = new RequestOptions()
+                                {
+                                    AuditLogReason = "Automatically deleted by DankDitties", // TODO: better message
+                                };
+                                var guildCategory = guild.CategoryChannels.FirstOrDefault(r => r.Id == actualCategory.Id);
+                                if (guildCategory != null)
+                                    await guildCategory.DeleteAsync(requestOptions);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Failed to remove existing category: {actualCategory.Name} ({actualCategory.Id})");
+                                Console.WriteLine(e);
+                            }
+                            Console.WriteLine();
+                        }
+                        else if (expectedCategory != null && actualCategory != null)
+                        {
+                            // Modify
+                            Console.WriteLine($"Modifying category: {actualCategory.Name} ({actualCategory.Id})");
+                            foreach (var prop in categoryChange.ChangedProperties)
+                            {
+                                var e = prop.GetValue(expectedCategory);
+                                var a = prop.GetValue(actualCategory);
+                                //if (prop.Name == "Permissions" || prop.Name == "Membership")
+                                //{
+                                //    e = JsonConvert.SerializeObject(e, Formatting.Indented).Replace("\n", "\n  ");
+                                //    a = JsonConvert.SerializeObject(a, Formatting.Indented).Replace("\n", "\n  ");
+                                //}
+                                Console.WriteLine($"  {prop.Name}: {a} -> {e}");
+                            }
+                            Console.WriteLine();
+                        }
+                    }
+                    else if (change is ConfigDiff.IResult<ServerConfigurationChannel> channelChange)
+                    {
+                        var actualChannel = channelChange.Actual;
+                        var expectedChannel = channelChange.Expected;
+                        if (actualChannel == null && expectedChannel != null)
+                        {
+                            // Add
+                            Console.WriteLine("Adding new channel: #" + expectedChannel.Name);
+                            Console.WriteLine("  Friendly id: " + expectedChannel.FriendlyId);
+                            var cat = expectedConfiguration.Categories.FirstOrDefault(c => c.FriendlyId == expectedChannel.Category);
+                            Console.WriteLine($"  Category: {cat!.Name} ({cat.Id} / {cat.FriendlyId})");
+                            Console.WriteLine("  Position: " + expectedChannel.Position);
+                            Console.WriteLine("  Sync Permissions: " + expectedChannel.SyncPermissions);
+                            Console.WriteLine("  UserPermissions: " + yamlPrint(expectedChannel.UserPermissions));
+                            Console.WriteLine("  RolePermissions: " + yamlPrint(expectedChannel.RolePermissions));
+
+                            var requestOptions = new RequestOptions()
+                            {
+                                AuditLogReason = "Automatically added by DankDitties", // TODO: better message
+                            };
+
+                            // Todo: use text or voice depending
+                            var newChannel = await guild.CreateTextChannelAsync(expectedChannel.Name, (props) =>
+                            {
+                                props.CategoryId = expectedConfiguration.Categories.FirstOrDefault(c => c.FriendlyId == expectedChannel.Category)!.Id;
+                                var userPermissions = from kvp in expectedChannel.UserPermissions
+                                                      let userName = kvp.Key
+                                                      let permission = kvp.Value
+                                                      let matchingUser = guild.Users.FirstOrDefault(u => _getGoodName(u) == userName)
+                                                      where matchingUser != null
+                                                      select (matchingUser.Id, permission);
+                                var rolePermissions = from kvp in expectedChannel.RolePermissions
+                                                      let roleName = kvp.Key
+                                                      let permission = kvp.Value
+                                                      let matchingRole = expectedConfiguration.Roles.FirstOrDefault(r => r.FriendlyId == roleName)
+                                                      where matchingRole != null
+                                                      select (matchingRole.Id, permission);
+
+                                props.PermissionOverwrites = new Optional<IEnumerable<Overwrite>>(_mapPermissionOverwrites(userPermissions, rolePermissions));
+                                props.Position = expectedChannel.Position;
+                                // TODO: everything else
+
+                            }, requestOptions);
+                            expectedChannel.Id = newChannel.Id;
+
+                            Console.WriteLine();
+                        }
+                        else if (expectedChannel == null && actualChannel != null)
+                        {
+                            // Remove
+                            Console.WriteLine($"Deleting existing channel: {actualChannel.Name} ({actualChannel.Id})");
+                            try
+                            {
+                                var requestOptions = new RequestOptions()
+                                {
+                                    AuditLogReason = "Automatically deleted by DankDitties", // TODO: better message
+                                };
+                                var guildChannel = guild.Channels.FirstOrDefault(r => r.Id == actualChannel.Id);
+                                if (guildChannel != null)
+                                    await guildChannel.DeleteAsync(requestOptions);
+                            }
+                            catch (Exception e)
+                            {
+                                Console.WriteLine($"Failed to remove existing channel: {actualChannel.Name} ({actualChannel.Id})");
+                                Console.WriteLine(e);
+                            }
+                            Console.WriteLine();
+                        }
+                        else if (expectedChannel != null && actualChannel != null)
+                        {
+                            // Modify
+                            Console.WriteLine($"Modifying channel: {actualChannel.Name} ({actualChannel.Id})");
+                            foreach (var prop in channelChange.ChangedProperties)
+                            {
+                                var e = prop.GetValue(expectedChannel);
+                                var a = prop.GetValue(actualChannel);
+                                //if (prop.Name == "Permissions" || prop.Name == "Membership")
+                                //{
+                                //    e = JsonConvert.SerializeObject(e, Formatting.Indented).Replace("\n", "\n  ");
+                                //    a = JsonConvert.SerializeObject(a, Formatting.Indented).Replace("\n", "\n  ");
+                                //}
+                                Console.WriteLine($"  {prop.Name}: {a} -> {e}");
+                            }
+                            Console.WriteLine();
+                        }
+                    }
+                }
+
+                //var yaml = serializer.Serialize(existingConfiguration);
+
+                // Update yaml
+                var yaml = serializer.Serialize(expectedConfiguration);
+                await File.WriteAllTextAsync(Program.ServerConfigFileLocation, yaml);
             }
             catch (Exception e)
             {
@@ -193,6 +435,42 @@ namespace ServerManagementCli
             }
             return result;
         }
+        private static GuildPermissions _mapGuildPermissions(PermissionSet permissions)
+        {
+            return new GuildPermissions(
+                attachFiles: permissions.AttachFiles == true,
+                readMessageHistory: permissions.ReadMessageHistory == true,
+                mentionEveryone: permissions.MentionEveryone == true,
+                useExternalEmojis: permissions.UseExternalEmojis == true,
+                connect: permissions.Connect == true,
+                speak: permissions.Speak == true,
+                muteMembers: permissions.MuteMembers == true,
+                useVoiceActivation: permissions.UseVAD == true,
+                moveMembers: permissions.MoveMembers == true,
+                embedLinks: permissions.EmbedLinks == true,
+                prioritySpeaker: permissions.PrioritySpeaker == true,
+                stream: permissions.Stream == true,
+                changeNickname: permissions.ChangeNickname == true,
+                manageNicknames: permissions.ManageNicknames == true,
+                manageRoles: permissions.ManageRoles == true,
+                deafenMembers: permissions.DeafenMembers == true,
+                manageMessages: permissions.ManageMessages == true,
+                viewChannel: permissions.ViewChannel == true,
+                sendMessages: permissions.SendMessages == true,
+                createInstantInvite: permissions.CreateInstantInvite == true,
+                banMembers: permissions.BanMembers == true,
+                sendTTSMessages: permissions.SendTTSMessages == true,
+                administrator: permissions.Administrator == true,
+                manageChannels: permissions.ManageChannels == true,
+                kickMembers: permissions.KickMembers == true,
+                addReactions: permissions.AddReactions == true,
+                viewAuditLog: permissions.ViewAuditLog == true,
+                manageWebhooks: permissions.ManageWebhooks == true,
+                manageGuild: permissions.ManageGuild == true,
+                manageEmojis: permissions.ManageEmojis == true
+            );
+        }
+
         private static PermissionSet _mapPermissions(OverwritePermissions permissions)
         {
             var result = new PermissionSet();
@@ -230,6 +508,47 @@ namespace ServerManagementCli
             return result;
         }
 
+        private static IEnumerable<Overwrite> _mapPermissionOverwrites(IEnumerable<(ulong, PermissionSet)> userPermissions, IEnumerable<(ulong, PermissionSet)> rolePermissions)
+        {
+            foreach (var (roleId, permission) in rolePermissions)
+            {
+                yield return new Overwrite(roleId, PermissionTarget.Role, _mapPermissionOverwrites(permission));
+            }
+
+            foreach (var (userId, permission) in userPermissions)
+            {
+                yield return new Overwrite(userId, PermissionTarget.User, _mapPermissionOverwrites(permission));
+            }
+        }
+
+        private static OverwritePermissions _mapPermissionOverwrites(PermissionSet permissions)
+        {
+            return new OverwritePermissions(
+                attachFiles: _mapPermValue(permissions.AttachFiles),
+                readMessageHistory: _mapPermValue(permissions.ReadMessageHistory),
+                mentionEveryone: _mapPermValue(permissions.MentionEveryone),
+                useExternalEmojis: _mapPermValue(permissions.UseExternalEmojis),
+                connect: _mapPermValue(permissions.Connect),
+                speak: _mapPermValue(permissions.Speak),
+                sendMessages: _mapPermValue(permissions.SendMessages),
+                embedLinks: _mapPermValue(permissions.EmbedLinks),
+                deafenMembers: _mapPermValue(permissions.DeafenMembers),
+                moveMembers: _mapPermValue(permissions.MoveMembers),
+                useVoiceActivation: _mapPermValue(permissions.UseVAD),
+                prioritySpeaker: _mapPermValue(permissions.PrioritySpeaker),
+                stream: _mapPermValue(permissions.Stream),
+                muteMembers: _mapPermValue(permissions.MuteMembers),
+                manageMessages: _mapPermValue(permissions.ManageMessages),
+                manageWebhooks: _mapPermValue(permissions.ManageWebhooks),
+                manageRoles: _mapPermValue(permissions.ManageRoles),
+                viewChannel: _mapPermValue(permissions.ViewChannel),
+                addReactions: _mapPermValue(permissions.AddReactions),
+                manageChannel: _mapPermValue(permissions.ManageChannel),
+                createInstantInvite: _mapPermValue(permissions.CreateInstantInvite),
+                sendTTSMessages: _mapPermValue(permissions.SendTTSMessages)
+            );
+        }
+
         private static bool? _mapPermValue(PermValue permValue)
         {
             return permValue switch
@@ -237,6 +556,16 @@ namespace ServerManagementCli
                 PermValue.Allow => true,
                 PermValue.Deny => false,
                 _ => null,
+            };
+        }
+
+        private static PermValue _mapPermValue(bool? permValue)
+        {
+            return permValue switch
+            {
+                true => PermValue.Allow,
+                false => PermValue.Deny,
+                _ => PermValue.Inherit,
             };
         }
 
@@ -259,7 +588,7 @@ namespace ServerManagementCli
 
         private Task OnLog(LogMessage arg)
         {
-            Console.WriteLine(arg.Message);
+            //Console.WriteLine(arg.Message);
             return Task.FromResult(0);
         }
     }
