@@ -38,6 +38,9 @@ namespace DankDitties
             _witAiClient = witAiClient;
             _metadataManager = metadataManager;
             _playHistoryManager = playHistoryManager;
+
+            if (_voiceChannelWorker != null)
+                _voiceChannelWorker.OnNextSong += SetPresenceForSong;
         }
 
         private Task OnReady()
@@ -52,6 +55,14 @@ namespace DankDitties
             };
             _voiceChannelWorker.Start();
             return Task.FromResult(0);
+        }
+
+        private async void SetPresenceForSong(object? sender, Metadata? songMetadata)
+        {
+            if (songMetadata != null)
+                await _client.SetActivityAsync(new Game(songMetadata.Title, ActivityType.Listening));
+            else
+                await _client.SetActivityAsync(null);
         }
 
         private async Task OnMessageReceived(SocketMessage arg)

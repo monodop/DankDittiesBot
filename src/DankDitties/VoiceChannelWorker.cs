@@ -22,12 +22,25 @@ namespace DankDitties
         private readonly WitAiClient _witAiClient;
         private readonly List<string> _playlist = new List<string>();
         private readonly Random _random = new Random();
-
+        
         private Track? _mainTrack;
         private Track? _ttsTrack;
 
         public IEnumerable<string> Playlist => _playlist;
-        public Metadata? CurrentSong { get; private set; }
+        private Metadata? _currentSong;
+        public Metadata? CurrentSong
+        {
+            get
+            {
+                return _currentSong;
+            }
+            private set
+            {
+                _currentSong = value;
+                OnNextSong?.Invoke(this, _currentSong);
+            }
+        }
+        public event EventHandler<Metadata?>? OnNextSong;
 
         public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, PlayHistoryManager playHistoryManager, WitAiClient witAiClient)
         {
