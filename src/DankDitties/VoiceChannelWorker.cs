@@ -27,7 +27,19 @@ namespace DankDitties
         private Track? _ttsTrack;
 
         public IEnumerable<string> Playlist => _playlist;
-        public Metadata? CurrentSong { get; private set; }
+
+        private Metadata? _currentSong;
+        public Metadata? CurrentSong
+        {
+            get => _currentSong;
+            private set
+            {
+                _currentSong = value;
+                OnNextSong?.Invoke(this, value);
+            }
+        }
+
+        public event EventHandler<Metadata?>? OnNextSong;
 
         public VoiceChannelWorker(SocketVoiceChannel voiceChannel, MetadataManager metadataManager, PlayHistoryManager playHistoryManager, WitAiClient witAiClient)
         {

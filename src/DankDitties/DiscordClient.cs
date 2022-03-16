@@ -46,12 +46,21 @@ namespace DankDitties
             var voiceChannel = guild.VoiceChannels.FirstOrDefault(c => c.Id == Program.DiscordChannelId);
 
             _voiceChannelWorker = new VoiceChannelWorker(voiceChannel, _metadataManager, _playHistoryManager, _witAiClient);
+            _voiceChannelWorker.OnNextSong += SetPresenceForSong;
             _voiceChannelWorker.OnStopped += (s, e) =>
             {
                 _voiceChannelWorker.TryEnsureStarted();
             };
             _voiceChannelWorker.Start();
             return Task.FromResult(0);
+        }
+
+        private async void SetPresenceForSong(object? sender, Metadata? songMetadata)
+        {
+            if (songMetadata != null)
+                await _client.SetActivityAsync(new Game($"\"{songMetadata.Title}\"", ActivityType.Listening));
+            else
+                await _client.SetActivityAsync(null);
         }
 
         private async Task OnMessageReceived(SocketMessage arg)
